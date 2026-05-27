@@ -1,0 +1,29 @@
+# deps
+node_modules
+.pnp
+.pnp.js
+
+# next.js
+apps/frontend/.next/
+apps/frontend/out/
+
+# python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+dist/
+
+# env files
+.env
+.env.local
+.env*.local
+
+# build outputs
+build/
+dist/
+
+# misc
+.DS_Store
+*.log
+.vercel
