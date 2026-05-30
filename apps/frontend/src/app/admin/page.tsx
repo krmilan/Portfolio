@@ -87,6 +87,49 @@ export default function AdminPage() {
     flash(error ? `Error: ${error.message}` : "Skill saved ✓");
   }
 
+  async function deleteSkill(id: string) {
+    if (!confirm("Delete this skill category?")) return;
+    await supabase.from("skills").delete().eq("id", id);
+    setSkills(s => s.filter(x => x.id !== id));
+    flash("Skill category deleted");
+  }
+
+  const [newSkill, setNewSkill] = React.useState({ category: "", color: "#9d8ff0", display_order: 99 });
+
+  async function addSkill() {
+    if (!newSkill.category) { flash("Category name required"); return; }
+    setSaving(true);
+    const { data, error } = await supabase.from("skills")
+      .insert({ ...newSkill, items: [] }).select().single();
+    setSaving(false);
+    if (error) { flash(`Error: ${error.message}`); return; }
+    setSkills(s => [...s, data]);
+    setNewSkill({ category: "", color: "#9d8ff0", display_order: 99 });
+    flash("Skill category added ✓");
+  }
+
+  async function deleteSkill(id: string) {
+    if (!confirm("Delete this skill category?")) return;
+    await supabase.from("skills").delete().eq("id", id);
+    setSkills(s => s.filter(x => x.id !== id));
+    flash("Skill category deleted");
+  }
+
+  const [newSkill, setNewSkill] = useState({ category: "", color: "#9d8ff0", display_order: 99 });
+
+  async function addSkill() {
+    if (!newSkill.category) { flash("Category name required"); return; }
+    setSaving(true);
+    const { data, error } = await supabase.from("skills")
+      .insert({ ...newSkill, items: [] })
+      .select().single();
+    setSaving(false);
+    if (error) { flash(`Error: ${error.message}`); return; }
+    setSkills(s => [...s, data]);
+    setNewSkill({ category: "", color: "#9d8ff0", display_order: 99 });
+    flash("Skill category added ✓");
+  }
+
   // Styles
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "10px 14px", borderRadius: 10,
@@ -439,9 +482,39 @@ export default function AdminPage() {
                     style={ghostBtn}
                   >+ Skill</button>
                   <button onClick={() => saveSkill(s)} style={btnStyle}>Save</button>
+                  <button onClick={() => deleteSkill(s.id)} style={dangerBtn}>Delete Category</button>
                 </div>
               </div>
             ))}
+            {/* Add new skill category */}
+            <div style={{ ...cardStyle, border: "1px dashed rgba(157,143,240,0.3)" }}>
+              <h3 style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 16, color: "#9d8ff0", marginBottom: 20 }}>
+                + Add Skill Category
+              </h3>
+              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: 12, marginBottom: 16 }}>
+                <div>
+                  <label style={labelStyle}>Category Name *</label>
+                  <input style={inputStyle} value={newSkill.category} placeholder="e.g. DevOps"
+                    onChange={e => setNewSkill(s => ({ ...s, category: e.target.value }))} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Color</label>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <input type="color" value={newSkill.color}
+                      onChange={e => setNewSkill(s => ({ ...s, color: e.target.value }))}
+                      style={{ width: 44, height: 42, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", cursor: "pointer" }} />
+                    <input style={{ ...inputStyle, flex: 1 }} value={newSkill.color}
+                      onChange={e => setNewSkill(s => ({ ...s, color: e.target.value }))} />
+                  </div>
+                </div>
+                <div>
+                  <label style={labelStyle}>Display Order</label>
+                  <input type="number" style={inputStyle} value={newSkill.display_order}
+                    onChange={e => setNewSkill(s => ({ ...s, display_order: Number(e.target.value) }))} />
+                </div>
+              </div>
+              <button onClick={addSkill} style={btnStyle}>Add Category</button>
+            </div>
           </div>
         )}
 
