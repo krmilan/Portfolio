@@ -12,7 +12,9 @@ def get_supabase() -> Client:
 def ping_db() -> bool:
     try:
         client = get_supabase()
-        client.table("documents").select("id").limit(1).execute()
+        # Simpler ping — just fetch from profile table
+        client.table("profile").select("id").limit(1).execute()
         return True
-    except Exception:
+    except Exception as e:
+        print(f"[DB PING FAILED] {e}")
         return False
