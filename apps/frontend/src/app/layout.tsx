@@ -33,6 +33,8 @@ export const metadata: Metadata = {
     "Milan Ray",
     "Machine Learning",
     "Python",
+    "Supabase",
+    "pgvector",
   ],
   authors: [{ name: "Milan Ray", url: "https://github.com/krmilan" }],
   creator: "Milan Ray",
@@ -44,21 +46,13 @@ export const metadata: Metadata = {
     title: "Milan Ray — AI & Full-Stack Engineer",
     description:
       "Production-grade AI systems, RAG pipelines, and modern full-stack engineering.",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Milan Ray — AI Engineer Portfolio",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Milan Ray — AI & Full-Stack Engineer",
     description:
       "Production-grade AI systems, RAG pipelines, and modern full-stack engineering.",
-    images: ["/og-image.png"],
+    creator: "@krmilan",
   },
   robots: {
     index: true,
