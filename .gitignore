@@ -54,3 +54,4 @@ apps/frontend/.env.local
 
 # Docker
 .docker/
+apps/frontend/.env.local
