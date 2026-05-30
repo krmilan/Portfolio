@@ -1,220 +1,104 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
-import Mascot from "./mascot";
-
-const NAV_LINKS = [
-  { label: "About", href: "#about" },
-  { label: "Skills", href: "#skills" },
-  { label: "Projects", href: "#projects" },
-  { label: "Chat", href: "#chat" },
-];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    const fn = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
   }, []);
 
+  const links = ["About", "Skills", "Projects", "Chat"];
+
   return (
-    <header
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        transition: "all 0.3s ease",
-        background: scrolled
-          ? "rgba(10,10,15,0.85)"
-          : "transparent",
-        backdropFilter: scrolled ? "blur(20px)" : "none",
-        borderBottom: scrolled
-          ? "1px solid rgba(255,255,255,0.06)"
-          : "none",
-      }}
-    >
-      <nav
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "0 24px",
-          height: "64px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        {/* logo + mascot */}
-        <Link
-          href="/"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            textDecoration: "none",
-          }}
-        >
-          <Mascot size={36} state="idle" />
-          <span
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "18px",
-              fontWeight: 700,
-              color: "var(--text-primary)",
-              letterSpacing: "-0.03em",
-            }}
-          >
-            Milan<span style={{ color: "var(--accent)" }}>.</span>
+    <nav style={{
+      position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
+      background: scrolled ? "rgba(8,8,16,0.95)" : "rgba(8,8,16,0.5)",
+      backdropFilter: "blur(20px)",
+      borderBottom: "1px solid rgba(255,255,255,0.07)",
+      padding: "14px 0",
+      transition: "background 0.3s ease",
+    }}>
+      <div style={{ maxWidth: 1152, margin: "0 auto", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+
+        {/* Logo */}
+        <a href="#about" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+            background: "linear-gradient(135deg, #7c6fcd, #00d4ff)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontFamily: "Syne, sans-serif", fontWeight: 900, fontSize: 14, color: "white",
+            boxShadow: "0 0 16px rgba(124,111,205,0.5)",
+          }}>M</div>
+          <span style={{ fontFamily: "Syne, sans-serif", fontWeight: 800, fontSize: 18, color: "white", whiteSpace: "nowrap" }}>
+            Milan
+            <span style={{ background: "linear-gradient(135deg, #9d8ff0, #00d4ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>.</span>
           </span>
-        </Link>
+        </a>
 
-        {/* desktop links */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "32px",
-          }}
-          className="hidden md:flex"
-        >
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              style={{
-                color: "var(--text-secondary)",
-                textDecoration: "none",
-                fontSize: "14px",
-                fontWeight: 500,
-                letterSpacing: "0.01em",
-                transition: "color 0.2s ease",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = "var(--text-primary)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = "var(--text-secondary)")
-              }
-            >
-              {link.label}
-            </Link>
+        {/* Desktop */}
+        <div className="nav-links">
+          {links.map(link => (
+            <a key={link} href={`#${link.toLowerCase()}`} style={{
+              padding: "8px 16px", borderRadius: 8, fontSize: 14,
+              color: "#94a3b8", textDecoration: "none", transition: "all 0.2s",
+              fontFamily: "DM Sans, sans-serif",
+            }}
+              onMouseEnter={e => { (e.target as HTMLAnchorElement).style.color = "white"; (e.target as HTMLAnchorElement).style.background = "rgba(255,255,255,0.08)"; }}
+              onMouseLeave={e => { (e.target as HTMLAnchorElement).style.color = "#94a3b8"; (e.target as HTMLAnchorElement).style.background = "transparent"; }}
+            >{link}</a>
           ))}
-
-          <a
-            href="/resume.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              padding: "8px 20px",
-              borderRadius: "8px",
-              background: "transparent",
-              border: "1px solid rgba(124,106,247,0.4)",
-              color: "var(--accent)",
-              fontSize: "14px",
-              fontWeight: 500,
-              textDecoration: "none",
-              transition: "all 0.2s ease",
-              fontFamily: "var(--font-display)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(124,106,247,0.1)";
-              e.currentTarget.style.borderColor = "var(--accent)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
-              e.currentTarget.style.borderColor = "rgba(124,106,247,0.4)";
-            }}
-          >
-            Resume
-          </a>
+          <a href="/resume.pdf" style={{
+            marginLeft: 8, padding: "8px 20px", borderRadius: 8, fontSize: 14, fontWeight: 600,
+            background: "linear-gradient(135deg, #7c6fcd, #9d8ff0)", color: "white",
+            textDecoration: "none", boxShadow: "0 0 20px rgba(124,111,205,0.4)",
+            fontFamily: "DM Sans, sans-serif", whiteSpace: "nowrap",
+          }}>Resume</a>
         </div>
 
-        {/* mobile menu button */}
-        <button
-          className="flex md:hidden"
-          onClick={() => setMenuOpen(!menuOpen)}
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            padding: "8px",
-            color: "var(--text-primary)",
-          }}
-          aria-label="Toggle menu"
-        >
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 22 22"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          >
-            {menuOpen ? (
-              <>
-                <line x1="4" y1="4" x2="18" y2="18" />
-                <line x1="18" y1="4" x2="4" y2="18" />
-              </>
-            ) : (
-              <>
-                <line x1="3" y1="7" x2="19" y2="7" />
-                <line x1="3" y1="13" x2="19" y2="13" />
-              </>
-            )}
-          </svg>
-        </button>
-      </nav>
-
-      {/* mobile menu */}
-      {menuOpen && (
-        <div
-          style={{
-            background: "rgba(10,10,15,0.97)",
-            backdropFilter: "blur(20px)",
-            borderTop: "1px solid var(--border)",
-            padding: "20px 24px 28px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "20px",
-          }}
-        >
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setMenuOpen(false)}
-              style={{
-                color: "var(--text-secondary)",
-                textDecoration: "none",
-                fontSize: "16px",
-                fontWeight: 500,
-              }}
-            >
-              {link.label}
-            </Link>
+        {/* Mobile burger */}
+        <button className="nav-mobile-btn" onClick={() => setMenuOpen(!menuOpen)} style={{
+          background: "transparent", border: "1px solid rgba(255,255,255,0.12)",
+          borderRadius: 8, padding: "8px 10px", cursor: "pointer",
+          flexDirection: "column", gap: 5, alignItems: "center", justifyContent: "center",
+        }}>
+          {[0, 1, 2].map(i => (
+            <div key={i} style={{
+              width: 20, height: 2, background: "#cbd5e1", borderRadius: 2, transition: "all 0.3s",
+              transform: menuOpen
+                ? i === 0 ? "rotate(45deg) translate(5px, 5px)"
+                : i === 2 ? "rotate(-45deg) translate(5px, -5px)" : "none"
+                : "none",
+              opacity: menuOpen && i === 1 ? 0 : 1,
+            }} />
           ))}
-          <a
-            href="/resume.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              color: "var(--accent)",
-              textDecoration: "none",
-              fontSize: "16px",
-              fontWeight: 500,
+        </button>
+      </div>
+
+      {/* Mobile menu */}
+      {menuOpen && (
+        <div style={{ background: "rgba(8,8,16,0.98)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.06)", padding: "16px 24px 24px" }}>
+          {links.map(link => (
+            <a key={link} href={`#${link.toLowerCase()}`} onClick={() => setMenuOpen(false)} style={{
+              display: "block", padding: "12px 16px", borderRadius: 10,
+              fontSize: 15, color: "#cbd5e1", textDecoration: "none", marginBottom: 4,
+              fontFamily: "DM Sans, sans-serif",
             }}
-          >
-            Resume ↗
-          </a>
+              onMouseEnter={e => { (e.target as HTMLAnchorElement).style.background = "rgba(255,255,255,0.06)"; (e.target as HTMLAnchorElement).style.color = "white"; }}
+              onMouseLeave={e => { (e.target as HTMLAnchorElement).style.background = "transparent"; (e.target as HTMLAnchorElement).style.color = "#cbd5e1"; }}
+            >{link}</a>
+          ))}
+          <a href="/resume.pdf" style={{
+            display: "block", marginTop: 12, padding: "12px 16px", borderRadius: 10,
+            fontSize: 15, fontWeight: 600, textAlign: "center",
+            background: "linear-gradient(135deg, #7c6fcd, #9d8ff0)", color: "white", textDecoration: "none",
+          }}>Resume</a>
         </div>
       )}
-    </header>
+    </nav>
   );
 }

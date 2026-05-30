@@ -1,281 +1,67 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { getSkills, type Skill } from "@/lib/content";
 
-const SKILLS = [
-  {
-    category: "Frontend",
-    color: "#7c6af7",
-    glow: "rgba(124,106,247,0.15)",
-    items: [
-      { name: "Next.js", level: 90 },
-      { name: "TypeScript", level: 85 },
-      { name: "Tailwind CSS", level: 90 },
-      { name: "Shadcn UI", level: 80 },
-    ],
-  },
-  {
-    category: "Backend",
-    color: "#4fc4cf",
-    glow: "rgba(79,196,207,0.15)",
-    items: [
-      { name: "FastAPI", level: 85 },
-      { name: "Python", level: 88 },
-      { name: "REST APIs", level: 90 },
-      { name: "Async / SSE", level: 80 },
-    ],
-  },
-  {
-    category: "AI & RAG",
-    color: "#a78bfa",
-    glow: "rgba(167,139,250,0.15)",
-    items: [
-      { name: "RAG Pipelines", level: 82 },
-      { name: "pgvector", level: 78 },
-      { name: "Gemini API", level: 80 },
-      { name: "Groq API", level: 78 },
-    ],
-  },
-  {
-    category: "Database & DevOps",
-    color: "#34d399",
-    glow: "rgba(52,211,153,0.15)",
-    items: [
-      { name: "Supabase", level: 85 },
-      { name: "PostgreSQL", level: 82 },
-      { name: "Docker", level: 78 },
-      { name: "GitHub Actions", level: 75 },
-    ],
-  },
-];
-
-function SkillBar({
-  name,
-  level,
-  color,
-  delay,
-}: {
-  name: string;
-  level: number;
-  color: string;
-  delay: number;
-}) {
+function SkillBar({ name, pct, color, delay }: { name: string; pct: number; color: string; delay: number }) {
   const [width, setWidth] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => setWidth(level), delay);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.3 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [level, delay]);
-
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) setTimeout(() => setWidth(pct), delay);
+    }, { threshold: 0.2 });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, [pct, delay]);
   return (
-    <div ref={ref} style={{ marginBottom: "14px" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          marginBottom: "6px",
-        }}
-      >
-        <span
-          style={{
-            fontSize: "13px",
-            color: "var(--text-secondary)",
-            fontWeight: 500,
-          }}
-        >
-          {name}
-        </span>
-        <span
-          style={{
-            fontSize: "12px",
-            color: "var(--text-muted)",
-          }}
-        >
-          {level}%
-        </span>
+    <div ref={ref}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+        <span style={{ fontSize: 13, color: "#cbd5e1", fontWeight: 500 }}>{name}</span>
+        <span style={{ fontSize: 11, fontFamily: "monospace", color }}>{pct}%</span>
       </div>
-      <div
-        style={{
-          height: "4px",
-          borderRadius: "2px",
-          background: "rgba(255,255,255,0.06)",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            height: "100%",
-            borderRadius: "2px",
-            background: `linear-gradient(90deg, ${color}, ${color}99)`,
-            width: `${width}%`,
-            transition: "width 1s cubic-bezier(0.4, 0, 0.2, 1)",
-            boxShadow: `0 0 8px ${color}66`,
-          }}
-        />
+      <div style={{ height: 5, borderRadius: 4, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+        <div style={{ height: "100%", borderRadius: 4, width: `${width}%`, transition: "width 1s ease-out", background: `linear-gradient(90deg, ${color}77, ${color})`, boxShadow: `0 0 8px ${color}55` }} />
       </div>
     </div>
   );
 }
 
-export default function Skills() {
-  const [visible, setVisible] = useState(false);
-  const ref = useRef<HTMLElement>(null);
+const FALLBACK: Skill[] = [
+  { id: "1", category: "Frontend", color: "#9d8ff0", display_order: 1, items: [{ name: "Next.js", pct: 90 }, { name: "TypeScript", pct: 85 }, { name: "Tailwind CSS", pct: 90 }, { name: "React / Shadcn", pct: 88 }] },
+  { id: "2", category: "Backend", color: "#00d4ff", display_order: 2, items: [{ name: "FastAPI", pct: 85 }, { name: "Python", pct: 88 }, { name: "REST / SSE", pct: 90 }, { name: "Pydantic", pct: 82 }] },
+  { id: "3", category: "AI & RAG", color: "#00ffaa", display_order: 3, items: [{ name: "RAG Pipelines", pct: 82 }, { name: "pgvector", pct: 78 }, { name: "Gemini / Groq", pct: 80 }, { name: "Embeddings", pct: 76 }] },
+  { id: "4", category: "DevOps", color: "#ff6b35", display_order: 4, items: [{ name: "Supabase", pct: 85 }, { name: "Docker", pct: 78 }, { name: "GitHub Actions", pct: 75 }, { name: "PostgreSQL", pct: 82 }] },
+];
+
+export default function SkillsSection() {
+  const [skills, setSkills] = useState<Skill[]>(FALLBACK);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
+    getSkills().then(data => { if (data.length > 0) setSkills(data); });
   }, []);
 
   return (
-    <section
-      id="skills"
-      ref={ref}
-      style={{
-        padding: "100px 24px",
-        position: "relative",
-        zIndex: 1,
-      }}
-    >
-      <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-        {/* heading */}
-        <div style={{ marginBottom: "60px" }}>
-          <p
-            style={{
-              fontSize: "12px",
-              color: "var(--accent2)",
-              letterSpacing: "0.15em",
-              textTransform: "uppercase",
-              fontWeight: 500,
-              marginBottom: "12px",
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(16px)",
-              transition: "all 0.6s ease",
-            }}
-          >
-            Capabilities
-          </p>
-          <h2
-            style={{
-              fontSize: "clamp(32px, 5vw, 52px)",
-              fontWeight: 800,
-              letterSpacing: "-0.03em",
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(16px)",
-              transition: "all 0.6s ease 0.1s",
-            }}
-          >
-            Skills &{" "}
-            <span className="text-gradient">Tech Stack</span>
+    <section id="skills" className="section-pad">
+      <div style={{ maxWidth: 1152, margin: "0 auto", position: "relative", zIndex: 1 }}>
+        <div style={{ marginBottom: 52 }}>
+          <p style={{ fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "#9d8ff0", marginBottom: 16, fontWeight: 600 }}>Capabilities</p>
+          <h2 className="font-display" style={{ fontSize: "clamp(32px, 5vw, 56px)", fontWeight: 900, color: "white" }}>
+            Skills & <span style={{ background: "linear-gradient(135deg, #9d8ff0, #00d4ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Tech Stack</span>
           </h2>
         </div>
-
-        {/* grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-            gap: "20px",
-          }}
-        >
-          {SKILLS.map((group, gi) => (
-            <div
-              key={group.category}
-              style={{
-                background: "var(--surface)",
-                border: "1px solid var(--border)",
-                borderRadius: "16px",
-                padding: "28px",
-                opacity: visible ? 1 : 0,
-                transform: visible
-                  ? "translateY(0)"
-                  : "translateY(24px)",
-                transition: `all 0.6s ease ${0.1 + gi * 0.1}s`,
-                position: "relative",
-                overflow: "hidden",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor =
-                  "rgba(255,255,255,0.12)";
-                e.currentTarget.style.background =
-                  "rgba(30,30,46,0.9)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "var(--border)";
-                e.currentTarget.style.background = "var(--surface)";
-              }}
+        <div className="skills-grid">
+          {skills.map(cat => (
+            <div key={cat.id} className="glass-bright" style={{ borderRadius: 20, padding: 24, transition: "transform 0.3s, box-shadow 0.3s" }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)"; (e.currentTarget as HTMLElement).style.boxShadow = `0 16px 40px ${cat.color}33`; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLElement).style.boxShadow = "none"; }}
             >
-              {/* card glow */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: "1px",
-                  background: `linear-gradient(90deg, transparent, ${group.color}66, transparent)`,
-                }}
-              />
-
-              {/* category label */}
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  marginBottom: "20px",
-                }}
-              >
-                <div
-                  style={{
-                    width: "8px",
-                    height: "8px",
-                    borderRadius: "50%",
-                    background: group.color,
-                    boxShadow: `0 0 8px ${group.color}`,
-                  }}
-                />
-                <span
-                  style={{
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    color: group.color,
-                    fontFamily: "var(--font-display)",
-                    letterSpacing: "0.02em",
-                  }}
-                >
-                  {group.category}
-                </span>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+                <div style={{ width: 8, height: 8, borderRadius: "50%", background: cat.color, boxShadow: `0 0 8px ${cat.color}` }} />
+                <span className="font-display" style={{ fontSize: 13, fontWeight: 700, color: cat.color }}>{cat.category}</span>
               </div>
-
-              {/* skill bars */}
-              {group.items.map((skill, si) => (
-                <SkillBar
-                  key={skill.name}
-                  name={skill.name}
-                  level={skill.level}
-                  color={group.color}
-                  delay={gi * 100 + si * 80}
-                />
-              ))}
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {cat.items.map((item, i) => <SkillBar key={item.name} name={item.name} pct={item.pct} color={cat.color} delay={i * 120} />)}
+              </div>
             </div>
           ))}
         </div>
