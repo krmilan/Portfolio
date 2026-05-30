@@ -13,10 +13,10 @@ async def health_check():
 
     try:
         client = get_supabase()
-        # lightweight ping — fetch 1 row from any system table
-        client.table("_realtime_schema_migrations").select("id").limit(1).execute()
+        client.table("profile").select("id").limit(1).execute()
         db_ok = True
-    except Exception:
+    except Exception as e:
+        print(f"[DB PING FAILED] {e}")
         db_ok = False
 
     return HealthResponse(
