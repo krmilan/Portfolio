@@ -12,14 +12,13 @@ on:
       - "apps/backend/**"
       - ".github/workflows/backend.yml"
 
-defaults:
-  run:
-    working-directory: apps/backend
-
 jobs:
   lint-and-test:
     name: Lint & Test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/backend
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
