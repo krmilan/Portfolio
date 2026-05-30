@@ -108,13 +108,6 @@ export default function AdminPage() {
     flash("Skill category added ✓");
   }
 
-      .select().single();
-    setSaving(false);
-    if (error) { flash(`Error: ${error.message}`); return; }
-    setSkills(s => [...s, data]);
-    setNewSkill({ category: "", color: "#9d8ff0", display_order: 99 });
-    flash("Skill category added ✓");
-  }
 
   // Styles
   const inputStyle: React.CSSProperties = {
