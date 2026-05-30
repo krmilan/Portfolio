@@ -1,3 +1,4 @@
+"use client";
 // Server Component — fetches profile via ISR (revalidate 60s)
 // Typewriter animation isolated in HeroTypewriter (client-only)
 
@@ -5,8 +6,8 @@ import HeroTypewriter from "@/components/ui/hero-typewriter";
 import { type Profile, type ExtraLink } from "@/lib/content";
 
 const FALLBACK: Profile = {
+  id: 1,
   name: "Milan Ray",
-  tagline: "AI & Full-Stack Engineer",
   bio: "I build production-grade systems where modern web engineering meets real AI — RAG pipelines, vector search, and full-stack applications built to ship.",
   github_url: "https://github.com",
   linkedin_url: "https://linkedin.com",
