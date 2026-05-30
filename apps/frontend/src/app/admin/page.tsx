@@ -108,19 +108,6 @@ export default function AdminPage() {
     flash("Skill category added ✓");
   }
 
-  async function deleteSkill(id: string) {
-    if (!confirm("Delete this skill category?")) return;
-    await supabase.from("skills").delete().eq("id", id);
-    setSkills(s => s.filter(x => x.id !== id));
-    flash("Skill category deleted");
-  }
-
-
-  async function addSkill() {
-    if (!newSkill.category) { flash("Category name required"); return; }
-    setSaving(true);
-    const { data, error } = await supabase.from("skills")
-      .insert({ ...newSkill, items: [] })
       .select().single();
     setSaving(false);
     if (error) { flash(`Error: ${error.message}`); return; }
