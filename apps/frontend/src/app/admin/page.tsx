@@ -115,7 +115,6 @@ export default function AdminPage() {
     flash("Skill category deleted");
   }
 
-  const [newSkill, setNewSkill] = useState({ category: "", color: "#9d8ff0", display_order: 99 });
 
   async function addSkill() {
     if (!newSkill.category) { flash("Category name required"); return; }
