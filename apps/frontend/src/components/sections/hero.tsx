@@ -563,7 +563,7 @@ export default async function HeroSection() {
         <div
           style={{
             position: "absolute",
-            bottom: -20,
+            bottom: 24,
             left: "50%",
             transform: "translateX(-50%)",
             display: "flex",
