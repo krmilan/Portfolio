@@ -158,7 +158,7 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
             {messages.length === 1 && (
               <div style={{ padding: "10px 22px", borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", flexWrap: "wrap", gap: 8 }}>
                 {SUGGESTIONS.map(s => (
-                  <button key={s} onClick={() => { setInput(s); inputRef.current?.focus(); }} style={{
+                  <button key={s} aria-label={`Suggested question: ${s}`} onClick={() => { setInput(s); inputRef.current?.focus(); }} style={{
                     fontSize: 12, padding: "6px 12px", borderRadius: 8, cursor: "pointer",
                     background: "transparent", color: "#94a3b8",
                     border: "1px solid rgba(255,255,255,0.09)", transition: "all 0.2s",
@@ -185,7 +185,7 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
                   style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 14, color: "white", caretColor: "#00d4ff", fontFamily: "DM Sans, sans-serif" }}
                 />
               </div>
-              <button onClick={handleSend} disabled={loading || !input.trim()} style={{
+              <button onClick={handleSend} disabled={loading || !input.trim()} aria-label="Send message" style={{
                 width: 42, height: 42, borderRadius: 11, border: "none",
                 cursor: input.trim() && !loading ? "pointer" : "not-allowed",
                 background: input.trim() && !loading ? "linear-gradient(135deg, #7c6fcd, #9d8ff0)" : "rgba(255,255,255,0.05)",

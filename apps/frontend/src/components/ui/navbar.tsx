@@ -61,7 +61,7 @@ export default function Navbar() {
         </div>
 
         {/* Mobile burger */}
-        <button className="nav-mobile-btn" onClick={() => setMenuOpen(!menuOpen)} style={{
+        <button className="nav-mobile-btn" aria-label={menuOpen ? "Close menu" : "Open menu"} onClick={() => setMenuOpen(!menuOpen)} style={{
           background: "transparent", border: "1px solid rgba(255,255,255,0.12)",
           borderRadius: 8, padding: "8px 10px", cursor: "pointer",
           flexDirection: "column", gap: 5, alignItems: "center", justifyContent: "center",
