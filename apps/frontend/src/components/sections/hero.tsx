@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import HeroTypewriter from "@/components/ui/hero-typewriter";
 import { type Profile, type ExtraLink } from "@/lib/content";
 
+
 const FALLBACK: Profile = {
   id: 1,
   name: "Milan Ray",
@@ -28,12 +29,11 @@ export default function HeroSection() {
   const [profile, setProfile] = useState<Profile>(FALLBACK);
 
   useEffect(() => {
-    const url = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!url) return;
-    fetch(`${url}/api/profile`, { signal: AbortSignal.timeout(3000) })
-      .then(r => r.ok ? r.json() : FALLBACK)
-      .then(data => setProfile(data))
-      .catch(() => {});
+    import("@/lib/content").then(({ getProfile }) =>
+      getProfile()
+        .then(data => { if (data) setProfile(data); })
+        .catch(() => {})
+    );
   }, []);
 
   const gh = profile.github_url || "https://github.com";
