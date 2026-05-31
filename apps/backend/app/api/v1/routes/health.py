@@ -6,7 +6,7 @@ from app.core.database import get_supabase
 router = APIRouter()
 
 
-@router.get("/health", response_model=HealthResponse)
+@router.api_route("/health", methods=["GET", "HEAD"], response_model=HealthResponse)
 async def health_check():
     settings = get_settings()
     db_ok = False
