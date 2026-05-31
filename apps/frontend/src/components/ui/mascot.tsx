@@ -26,7 +26,7 @@ export default function Mascot() {
   const [bubble, setBubble] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
   const targetRef = useRef({ x: 60, y: 300 });
-  const animRef = useRef<number>();
+  const animRef = useRef<number | undefined>(undefined);
   const quipIndex = useRef(0);
 
   useEffect(() => {
