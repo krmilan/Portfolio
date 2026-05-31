@@ -65,4 +65,4 @@ jobs:
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     steps:
       - name: Trigger Render deploy
-        run: curl -f "${{ secrets.RENDER_DEPLOY_HOOK }}"
+        run: curl -f -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
