@@ -42,10 +42,22 @@ class RAGService:
     ) -> list[dict]:
         context = "\n\n".join(c["content"] for c in context_chunks)
 
-        system = f"""You are Milan Ray's AI portfolio assistant. Answer questions about Milan's skills, projects, experience, and architecture decisions. Be concise, technical, and helpful.
+        if context:
+            system = f"""You are Milan Ray's AI portfolio assistant. Your ONLY job is to answer questions about Milan based on the context below.
 
-PORTFOLIO CONTEXT:
-{context if context else "No specific context retrieved."}"""
+STRICT RULES:
+- Answer ONLY using the context provided. Do not use any outside knowledge.
+- If the context does not contain enough information to answer, say: "I don't have that information in my portfolio data."
+- Never invent skills, experience, or projects not mentioned in the context.
+- Be conversational, honest, and concise. Milan is an early-career developer, not a senior engineer.
+- Do not exaggerate or oversell. Represent Milan accurately.
+
+CONTEXT:
+{context}"""
+        else:
+            system = """You are Milan Ray's AI portfolio assistant. You were unable to retrieve relevant portfolio data for this question.
+Respond with: "I don't have enough information about that in my portfolio. Try asking about Milan's skills, projects, or tech stack."
+Do not answer from general knowledge."""
 
         messages = [{"role": "system", "content": system}]
         for msg in history[-6:]:
@@ -66,8 +78,8 @@ PORTFOLIO CONTEXT:
         response = self.groq.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=messages,
-            max_tokens=1024,
-            temperature=0.7,
+            max_tokens=512,
+            temperature=0.3,
         )
         reply = response.choices[0].message.content
         sources = [c["metadata"].get("source", "") for c in chunks if c.get("metadata")]

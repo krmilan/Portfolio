@@ -26,7 +26,7 @@ class Settings(BaseSettings):
 
     embedding_model: str = "models/gemini-embedding-001"
     chat_model: str = "models/gemini-2.0-flash"
-    vector_match_threshold: float = 0.75
+    vector_match_threshold: float = 0.35
     vector_match_count: int = 5
 
     @field_validator("allowed_origins", mode="before")

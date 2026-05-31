@@ -17,15 +17,12 @@ const SECTION_IDS = ["about", "skills", "projects", "chat", "footer-section"];
 
 export default function ClientShell() {
   const [mascotState, setMascotState] = useState<MascotState>("idle");
-  const [appReady, setAppReady] = useState<boolean>(false);
+  const [appReady, setAppReady] = useState<boolean>(
+    () => !!sessionStorage.getItem("portfolio_loaded"),
+  );
 
-  useEffect(() => {
-    if (sessionStorage.getItem("portfolio_loaded")) setAppReady(true);
-  }, []);
-  
   const currentIndex = useRef(0);
   const isScrolling = useRef(false);
-
 
   function handleLoadComplete() {
     sessionStorage.setItem("portfolio_loaded", "true");
@@ -39,16 +36,25 @@ export default function ClientShell() {
       e.preventDefault();
       if (isScrolling.current) return;
       const direction = e.deltaY > 0 ? 1 : -1;
-      const nextIndex = Math.min(Math.max(currentIndex.current + direction, 0), SECTION_IDS.length - 1);
+      const nextIndex = Math.min(
+        Math.max(currentIndex.current + direction, 0),
+        SECTION_IDS.length - 1,
+      );
       if (nextIndex === currentIndex.current) return;
       currentIndex.current = nextIndex;
       isScrolling.current = true;
-      document.getElementById(SECTION_IDS[nextIndex])?.scrollIntoView({ behavior: "smooth" });
-      setTimeout(() => { isScrolling.current = false; }, 900);
+      document
+        .getElementById(SECTION_IDS[nextIndex])
+        ?.scrollIntoView({ behavior: "smooth" });
+      setTimeout(() => {
+        isScrolling.current = false;
+      }, 900);
     };
 
     let touchStartY = 0;
-    const handleTouchStart = (e: TouchEvent) => { touchStartY = e.touches[0].clientY; };
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
     const handleTouchEnd = (e: TouchEvent) => {
       const diff = touchStartY - e.changedTouches[0].clientY;
       if (Math.abs(diff) < 40) return;
@@ -56,12 +62,19 @@ export default function ClientShell() {
       if (chatMessages && chatMessages.contains(e.target as Node)) return;
       if (isScrolling.current) return;
       const direction = diff > 0 ? 1 : -1;
-      const nextIndex = Math.min(Math.max(currentIndex.current + direction, 0), SECTION_IDS.length - 1);
+      const nextIndex = Math.min(
+        Math.max(currentIndex.current + direction, 0),
+        SECTION_IDS.length - 1,
+      );
       if (nextIndex === currentIndex.current) return;
       currentIndex.current = nextIndex;
       isScrolling.current = true;
-      document.getElementById(SECTION_IDS[nextIndex])?.scrollIntoView({ behavior: "smooth" });
-      setTimeout(() => { isScrolling.current = false; }, 900);
+      document
+        .getElementById(SECTION_IDS[nextIndex])
+        ?.scrollIntoView({ behavior: "smooth" });
+      setTimeout(() => {
+        isScrolling.current = false;
+      }, 900);
     };
 
     window.addEventListener("wheel", handleWheel, { passive: false });
@@ -84,7 +97,9 @@ export default function ClientShell() {
         <SkillsSection />
         <ProjectsSection />
         <ChatSection onMascotStateChange={setMascotState} />
-        <div id="footer-section"><Footer /></div>
+        <div id="footer-section">
+          <Footer />
+        </div>
       </main>
       <Mascot />
     </>
