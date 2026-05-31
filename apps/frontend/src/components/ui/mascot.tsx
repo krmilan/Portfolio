@@ -1,193 +1,202 @@
 "use client";
+import { useEffect, useRef, useState, useCallback } from "react";
 
-import { useEffect, useState } from "react";
+type MascotState = "idle" | "walking" | "sleeping" | "waving";
 
-type MascotState = "sleeping" | "idle" | "blinking" | "typing" | "active";
+const QUIPS = [
+  "Psst… try the AI chat! 👇",
+  "Next.js + FastAPI 🚀",
+  "Ask me about Milan!",
+  "Open to work! 👀",
+  "RAG pipeline inside 🧠",
+  "Lighthouse: 99 🏆",
+];
 
-interface MascotProps {
-  state?: MascotState;
-  size?: number;
-}
+const FACE: Record<MascotState, string> = {
+  idle:     "( ◕‿◕ )",
+  walking:  "( >‿< )",
+  sleeping: "( -‿- )zzz",
+  waving:   "( ^‿^ )ﾉ",
+};
 
-export default function Mascot({ state = "idle", size = 80 }: MascotProps) {
-  const [currentState, setCurrentState] = useState<MascotState>(state);
+export default function Mascot() {
+  const [pos, setPos] = useState({ x: 60, y: 300 });
+  const [state, setState] = useState<MascotState>("idle");
+  const [flipped, setFlipped] = useState(false);
+  const [bubble, setBubble] = useState<string | null>(null);
+  const [visible, setVisible] = useState(false);
+  const targetRef = useRef({ x: 60, y: 300 });
+  const animRef = useRef<number>();
+  const quipIndex = useRef(0);
 
   useEffect(() => {
-    setCurrentState(state);
-  }, [state]);
+    // Hide on mobile
+    if (window.innerWidth < 768) return;
+    const t = setTimeout(() => setVisible(true), 1500);
+    return () => clearTimeout(t);
+  }, []);
 
-  // random blink every 3-5s when idle
+  const pickTarget = useCallback(() => {
+    // Stay in left/right edges, not center — less distracting
+    const side = Math.random() > 0.5;
+    const x = side
+      ? 40 + Math.random() * 120          // left edge zone
+      : window.innerWidth - 160 + Math.random() * 100; // right edge zone
+    const y = 100 + Math.random() * (window.innerHeight - 250);
+    setFlipped(x < targetRef.current.x);
+    targetRef.current = { x, y };
+    setState("walking");
+  }, []);
+
+  // Wander every 6–10s (much slower)
   useEffect(() => {
-    if (currentState !== "idle") return;
+    if (!visible) return;
+    pickTarget();
     const schedule = () => {
-      const delay = 3000 + Math.random() * 2000;
+      const delay = 12000 + Math.random() * 6000;
       return setTimeout(() => {
-        setCurrentState("blinking");
-        setTimeout(() => setCurrentState("idle"), 200);
-        timerRef = schedule();
+        pickTarget();
+        timerRef.current = schedule();
       }, delay);
     };
-    let timerRef = schedule();
-    return () => clearTimeout(timerRef);
-  }, [currentState]);
+    const timerRef = { current: schedule() };
+    return () => clearTimeout(timerRef.current);
+  }, [visible, pickTarget]);
 
-  const isAsleep = currentState === "sleeping";
-  const isTyping = currentState === "typing";
-  const isActive = currentState === "active";
-  const isBlinking = currentState === "blinking";
+  // Very slow smooth movement
+  useEffect(() => {
+    const step = () => {
+      setPos(p => {
+        const dx = targetRef.current.x - p.x;
+        const dy = targetRef.current.y - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 3) {
+          setState(s => s === "walking" ? "idle" : s);
+          return targetRef.current;
+        }
+       return { x: p.x + dx * 0.006, y: p.y + dy * 0.006 };
+      });
+      animRef.current = requestAnimationFrame(step);
+    };
+    animRef.current = requestAnimationFrame(step);
+    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
+  }, []);
+
+  // Occasional sleep
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (Math.random() < 0.2) {
+        setState("sleeping");
+        setTimeout(() => setState("idle"), 5000);
+      }
+    }, 15000);
+    return () => clearInterval(id);
+  }, []);
+
+  const handleClick = () => {
+    const q = QUIPS[quipIndex.current % QUIPS.length];
+    quipIndex.current++;
+    setBubble(q);
+    setState("waving");
+    setTimeout(() => setBubble(null), 2800);
+    setTimeout(() => setState("idle"), 900);
+  };
+
+  if (!visible) return null;
+
+  const color = state === "sleeping" ? "rgba(100,116,139,0.9)"
+    : state === "waving" ? "rgba(0,255,170,0.9)"
+    : state === "walking" ? "rgba(0,212,255,0.9)"
+    : "rgba(124,111,205,0.9)";
 
   return (
     <div
+      onClick={handleClick}
       style={{
-        width: size,
-        height: size,
-        position: "relative",
-        animation: isAsleep ? "none" : "float 4s ease-in-out infinite",
+        position: "fixed",
+        left: pos.x - 32,
+        top: pos.y - 40,
+        zIndex: 9999,
+        cursor: "pointer",
+        userSelect: "none",
+        transition: "opacity 0.8s ease",
       }}
     >
-      <svg
-        viewBox="0 0 80 80"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        style={{ width: "100%", height: "100%" }}
-      >
-        {/* glow ring */}
-        <circle
-          cx="40"
-          cy="40"
-          r="36"
-          fill="rgba(124,106,247,0.08)"
-          style={{
-            animation: isActive
-              ? "pulse-glow 1.5s ease-in-out infinite"
-              : "none",
-          }}
-        />
+      {bubble && (
+        <div style={{
+          position: "absolute",
+          bottom: 72,
+          left: "50%",
+          transform: `translateX(-50%) scaleX(${flipped ? -1 : 1})`,
+          background: "rgba(13,13,26,0.97)",
+          border: "1px solid rgba(157,143,240,0.5)",
+          borderRadius: 12,
+          padding: "6px 11px",
+          fontSize: 11,
+          fontFamily: "DM Sans, sans-serif",
+          fontWeight: 500,
+          color: "#e2e8f0",
+          whiteSpace: "nowrap",
+          boxShadow: "0 4px 24px rgba(124,111,205,0.3)",
+          animation: "bubble-in 0.2s ease",
+        }}>
+          {bubble}
+          <div style={{
+            position: "absolute", bottom: -6, left: "50%",
+            transform: "translateX(-50%)",
+            width: 0, height: 0,
+            borderLeft: "5px solid transparent",
+            borderRight: "5px solid transparent",
+            borderTop: "6px solid rgba(157,143,240,0.5)",
+          }} />
+        </div>
+      )}
 
-        {/* body */}
-        <circle cx="40" cy="40" r="28" fill="#1e1e2e" />
-        <circle
-          cx="40"
-          cy="40"
-          r="28"
-          stroke="url(#mascot-border)"
-          strokeWidth="1.5"
-          fill="none"
-        />
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 2,
+        transform: `scaleX(${flipped ? -1 : 1})`,
+        transition: "transform 0.4s ease",
+        filter: `drop-shadow(0 0 8px ${color})`,
+        animation: state === "sleeping" ? "mascot-sway 4s ease-in-out infinite"
+          : state === "walking" ? "mascot-walk 0.6s ease-in-out infinite alternate"
+          : state === "waving" ? "mascot-wave 0.3s ease-in-out 3"
+          : "mascot-float 4s ease-in-out infinite",
+      }}>
+        {/* Antenna */}
+        <div style={{ position: "relative", width: 2, height: 8, background: color, borderRadius: 2, marginBottom: -2 }}>
+          <div style={{ position: "absolute", top: -4, left: "50%", transform: "translateX(-50%)", width: 5, height: 5, borderRadius: "50%", background: color, animation: "blink 2.5s ease-in-out infinite" }} />
+        </div>
+        {/* Face */}
+        <div style={{ background: color, borderRadius: 10, padding: "3px 9px", fontSize: 10, fontFamily: "monospace", fontWeight: 700, color: "#0d0d1a", whiteSpace: "nowrap", minWidth: 76, textAlign: "center", transition: "background 0.4s" }}>
+          {FACE[state]}
+        </div>
+        {/* Body */}
+        <div style={{ width: 32, height: 22, background: `linear-gradient(160deg, ${color}, rgba(0,0,0,0.4))`, borderRadius: 7, border: `1px solid ${color}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: "#0d0d1a", fontWeight: 900, transition: "all 0.4s" }}>
+          AI
+        </div>
+        {/* Legs */}
+        <div style={{ display: "flex", gap: 6 }}>
+          {[0, 1].map(i => (
+            <div key={i} style={{ width: 7, height: 8, background: color, borderRadius: "0 0 3px 3px", transition: "background 0.4s",
+              animation: state === "walking" ? `leg${i} 0.6s ease-in-out infinite alternate` : "none"
+            }} />
+          ))}
+        </div>
+      </div>
 
-        {/* face */}
-        {isAsleep ? (
-          <>
-            {/* sleeping eyes */}
-            <path
-              d="M28 38 Q31 35 34 38"
-              stroke="#7c6af7"
-              strokeWidth="2"
-              strokeLinecap="round"
-              fill="none"
-            />
-            <path
-              d="M46 38 Q49 35 52 38"
-              stroke="#7c6af7"
-              strokeWidth="2"
-              strokeLinecap="round"
-              fill="none"
-            />
-            {/* zzz */}
-            <text
-              x="54"
-              y="28"
-              fontSize="8"
-              fill="#7c6af7"
-              opacity="0.7"
-              fontFamily="sans-serif"
-            >
-              z
-            </text>
-            <text
-              x="58"
-              y="22"
-              fontSize="6"
-              fill="#7c6af7"
-              opacity="0.5"
-              fontFamily="sans-serif"
-            >
-              z
-            </text>
-            {/* calm mouth */}
-            <path
-              d="M34 46 Q40 48 46 46"
-              stroke="#5a5870"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              fill="none"
-            />
-          </>
-        ) : (
-          <>
-            {/* open eyes */}
-            <circle cx="31" cy="36" r="3" fill="#7c6af7" />
-            <circle cx="49" cy="36" r="3" fill="#7c6af7" />
-            {isBlinking && (
-              <>
-                <line
-                  x1="28"
-                  y1="36"
-                  x2="34"
-                  y2="36"
-                  stroke="#7c6af7"
-                  strokeWidth="2"
-                />
-                <line
-                  x1="46"
-                  y1="36"
-                  x2="52"
-                  y2="36"
-                  stroke="#7c6af7"
-                  strokeWidth="2"
-                />
-              </>
-            )}
-
-            {/* mouth */}
-            {isTyping ? (
-              <circle cx="40" cy="48" r="1.5" fill="#7c6af7" opacity="0.6" />
-            ) : (
-              <path
-                d="M34 46 Q40 49 46 46"
-                stroke="#7c6af7"
-                strokeWidth="2"
-                strokeLinecap="round"
-                fill="none"
-              />
-            )}
-          </>
-        )}
-
-        {/* gradient border definition */}
-        <defs>
-          <linearGradient
-            id="mascot-border"
-            x1="0%"
-            y1="0%"
-            x2="100%"
-            y2="100%"
-          >
-            <stop offset="0%" stopColor="#7c6af7" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#7c6af7" stopOpacity="0.2" />
-          </linearGradient>
-          <style>{`
-            @keyframes float {
-              0%, 100% { transform: translateY(0px); }
-              50% { transform: translateY(-10px); }
-            }
-            @keyframes pulse-glow {
-              0%, 100% { r: 36; opacity: 0.08; }
-              50% { r: 40; opacity: 0.15; }
-            }
-          `}</style>
-        </defs>
-      </svg>
+      <style>{`
+        @keyframes mascot-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+        @keyframes mascot-walk  { from{transform:translateY(0) rotate(-1deg)} to{transform:translateY(-2px) rotate(1deg)} }
+        @keyframes mascot-wave  { 0%,100%{transform:rotate(0)} 50%{transform:rotate(10deg)} }
+        @keyframes mascot-sway  { 0%,100%{transform:rotate(-4deg)} 50%{transform:rotate(4deg)} }
+        @keyframes blink { 0%,88%,100%{opacity:1} 94%{opacity:0} }
+        @keyframes bubble-in { from{opacity:0;transform:translateX(-50%) scale(0.8)} to{opacity:1;transform:translateX(-50%) scale(1)} }
+        @keyframes leg0 { from{transform:translateY(0)} to{transform:translateY(3px)} }
+        @keyframes leg1 { from{transform:translateY(3px)} to{transform:translateY(0)} }
+      `}</style>
     </div>
   );
 }

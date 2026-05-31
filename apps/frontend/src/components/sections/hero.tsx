@@ -2,15 +2,14 @@
 
 import { useState, useEffect } from "react";
 import HeroTypewriter from "@/components/ui/hero-typewriter";
-import { type Profile, type ExtraLink } from "@/lib/content";
-
+import { type Profile, type ExtraLink, getProfile } from "@/lib/content";
 
 const FALLBACK: Profile = {
   id: 1,
   name: "Milan Ray",
   bio: "I build production-grade systems where modern web engineering meets real AI — RAG pipelines, vector search, and full-stack applications built to ship.",
-  github_url: "https://github.com",
-  linkedin_url: "https://linkedin.com",
+  github_url: "https://github.com/krmilan",
+  linkedin_url: "https://linkedin.com/in/krmilan",
   email: "milan@email.com",
   open_to_work: true,
   roles: ["AI Engineer", "Full-Stack Dev", "RAG Architect", "Backend Engineer"],
@@ -29,19 +28,21 @@ export default function HeroSection() {
   const [profile, setProfile] = useState<Profile>(FALLBACK);
 
   useEffect(() => {
-    import("@/lib/content").then(({ getProfile }) =>
-      getProfile()
-        .then(data => { if (data) setProfile(data); })
-        .catch(() => {})
-    );
+    getProfile()
+      .then(data => { if (data) setProfile(data); })
+      .catch(() => {});
   }, []);
 
-  const gh = profile.github_url || "https://github.com";
+  const gh = profile.github_url || "https://github.com/krmilan";
   const li = profile.linkedin_url || "https://linkedin.com";
   const extraLinks: ExtraLink[] = profile.extra_links ?? [];
 
   return (
-    <section id="about" className="hero-pad">
+    <section
+      id="about"
+      className="hero-pad"
+      style={{ position: "relative", overflow: "hidden", minHeight: "100vh" }}
+    >
       <div style={{ maxWidth: 1152, margin: "0 auto", width: "100%", position: "relative", zIndex: 1 }}>
         <div className="hero-grid">
           <div>
@@ -118,10 +119,37 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* Scroll hint */}
-        <div style={{ position: "absolute", bottom: 24, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 10, letterSpacing: "0.3em", textTransform: "uppercase", color: "#475569" }}>Scroll</span>
-          <div style={{ width: 1, height: 40, background: "linear-gradient(to bottom, #475569, transparent)" }} />
+        {/* Scroll indicator - desktop only */}
+        <div className="scroll-hint">
+          <span style={{ fontSize: 9, letterSpacing: "0.35em", textTransform: "uppercase", color: "#334155", fontFamily: "DM Sans, sans-serif" }}>Scroll</span>
+          <div style={{
+            width: 1,
+            height: 36,
+            background: "linear-gradient(to bottom, #334155, transparent)",
+            animation: "scroll-line 1.8s ease-in-out infinite",
+          }} />
+          <style>{`
+            @keyframes scroll-line {
+              0% { opacity: 0; transform: scaleY(0); transform-origin: top; }
+              50% { opacity: 1; transform: scaleY(1); }
+              100% { opacity: 0; transform: scaleY(1); }
+            }
+            .scroll-hint {
+              position: absolute;
+              bottom: 32px;
+              left: 50%;
+              transform: translateX(-50%);
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 6px;
+              pointer-events: none;
+              z-index: 2;
+            }
+            @media (max-width: 768px) {
+              .scroll-hint { display: none; }
+            }
+          `}</style>
         </div>
       </div>
     </section>

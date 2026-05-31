@@ -1,5 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
 from functools import lru_cache
+import json
 
 
 class Settings(BaseSettings):
@@ -26,6 +28,16 @@ class Settings(BaseSettings):
     chat_model: str = "models/gemini-2.0-flash"
     vector_match_threshold: float = 0.75
     vector_match_count: int = 5
+
+    @field_validator("allowed_origins", mode="before")
+    @classmethod
+    def parse_origins(cls, v):
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except Exception:
+                return [o.strip() for o in v.split(",")]
+        return v
 
 
 @lru_cache

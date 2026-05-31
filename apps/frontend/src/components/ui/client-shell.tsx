@@ -9,6 +9,7 @@ import ProjectsSection from "@/components/sections/projects";
 import ChatSection from "@/components/sections/chat";
 import Footer from "@/components/sections/footer";
 import LoadingScreen from "@/components/ui/loading-screen";
+import Mascot from "@/components/ui/mascot";
 
 type MascotState = "idle" | "typing" | "active" | "sleeping" | "blinking";
 
@@ -16,14 +17,15 @@ const SECTION_IDS = ["about", "skills", "projects", "chat", "footer-section"];
 
 export default function ClientShell() {
   const [mascotState, setMascotState] = useState<MascotState>("idle");
-  const [appReady, setAppReady] = useState(false);
+  const [appReady, setAppReady] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (sessionStorage.getItem("portfolio_loaded")) setAppReady(true);
+  }, []);
+  
   const currentIndex = useRef(0);
   const isScrolling = useRef(false);
 
-  useEffect(() => {
-    const seen = sessionStorage.getItem("portfolio_loaded");
-    if (seen) setAppReady(true);
-  }, []);
 
   function handleLoadComplete() {
     sessionStorage.setItem("portfolio_loaded", "true");
@@ -84,6 +86,7 @@ export default function ClientShell() {
         <ChatSection onMascotStateChange={setMascotState} />
         <div id="footer-section"><Footer /></div>
       </main>
+      <Mascot />
     </>
   );
 }
