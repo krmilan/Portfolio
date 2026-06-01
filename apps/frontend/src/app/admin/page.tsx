@@ -17,6 +17,7 @@ export default function AdminPage() {
   const [newProject, setNewProject] = useState<Partial<Project>>({
     accent_color: "#9d8ff0", visible: true, display_order: 99,
   });
+  const [newProjectTagsRaw, setNewProjectTagsRaw] = useState("");
 
   useEffect(() => {
     const stored = sessionStorage.getItem("admin_authed");
@@ -71,12 +72,13 @@ export default function AdminPage() {
     }
     setSaving(true);
     const { data, error } = await supabase.from("projects")
-      .insert({ ...newProject, tags: (newProject.tags as any) || [] })
+      .insert({ ...newProject, tags: newProjectTagsRaw.split(",").map(t => t.trim()).filter(Boolean) })
       .select().single();
     setSaving(false);
     if (error) { flash(`Error: ${error.message}`); return; }
     setProjects(p => [...p, data]);
     setNewProject({ accent_color: "#9d8ff0", visible: true, display_order: 99 });
+    setNewProjectTagsRaw("");
     flash("Project added ✓");
   }
 
@@ -356,8 +358,10 @@ export default function AdminPage() {
                 </div>
                 <div style={{ marginBottom: 16 }}>
                   <label style={labelStyle}>Tags (comma separated)</label>
-                  <input style={inputStyle} value={p.tags.join(", ")}
-                    onChange={e => setProjects(ps => ps.map(x => x.id === p.id ? { ...x, tags: e.target.value.split(",").map(t => t.trim()).filter(Boolean) } : x))} />
+                  <input style={inputStyle}
+                    defaultValue={p.tags.join(", ")}
+                    onBlur={e => setProjects(ps => ps.map(x => x.id === p.id ? { ...x, tags: e.target.value.split(",").map(t => t.trim()).filter(Boolean) } : x))}
+                    placeholder="Next.js, TypeScript, FastAPI" />
                 </div>
                 <div style={{ display: "flex", gap: 10 }}>
                   <button onClick={() => saveProject(p)} style={btnStyle}>Save</button>
@@ -406,8 +410,9 @@ export default function AdminPage() {
               <div style={{ marginBottom: 16 }}>
                 <label style={labelStyle}>Tags (comma separated)</label>
                 <input style={inputStyle}
-                  value={Array.isArray(newProject.tags) ? (newProject.tags as string[]).join(", ") : ""}
-                  onChange={e => setNewProject(p => ({ ...p, tags: e.target.value.split(",").map(t => t.trim()).filter(Boolean) as any }))} />
+                  value={newProjectTagsRaw}
+                  onChange={e => setNewProjectTagsRaw(e.target.value)}
+                  placeholder="Next.js, TypeScript, FastAPI" />
               </div>
               <button onClick={addProject} style={btnStyle}>Add Project</button>
             </div>
