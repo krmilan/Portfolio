@@ -120,7 +120,7 @@ export default function Skills() {
 
         {/* Heading — same pattern as other sections */}
         <h2 style={{
-          fontSize: "clamp(2rem, 4vw, 3rem)",
+          fontSize: "clamp(1.75rem, 3vw, 2.5rem)",
           fontWeight: 800,
           letterSpacing: "-0.02em",
           color: "#f8fafc",
@@ -143,7 +143,7 @@ export default function Skills() {
           fontFamily: "monospace",
           fontSize: 12,
           color: "#475569",
-          marginBottom: 52,
+          marginBottom: 36,
         }}>
           tools and technologies I build with
         </p>
@@ -302,7 +302,7 @@ function Ticker() {
       aria-hidden="true"
       style={{
         position: "relative",
-        marginTop: 52,
+        marginTop: 36,
         overflow: "hidden",
         borderTop: "1px solid rgba(255,255,255,0.05)",
         paddingTop: 14,

@@ -43,7 +43,7 @@ export default function HeroSection() {
       className="hero-pad"
       style={{ position: "relative", overflow: "hidden", minHeight: "100vh", display: "flex", alignItems: "center" }}
     >
-      <div style={{ maxWidth: 1152, margin: "0 auto", width: "100%", position: "relative", zIndex: 1,  paddingTop: 80, paddingBottom: 80  }}>
+      <div style={{ maxWidth: 1152, margin: "0 auto", width: "100%", position: "relative", zIndex: 1 }}>
         <div className="hero-grid">
           <div>
             {profile.open_to_work && (

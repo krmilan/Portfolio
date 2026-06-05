@@ -69,13 +69,13 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
   }
 
   return (
-    <section id="chat" style={{ minHeight: "100vh", display: "flex", alignItems: "center", padding: "80px 24px", position: "relative" }}>
+    <section id="chat" style={{ display: "flex", alignItems: "center", padding: "80px 48px", position: "relative" }}>
       <div style={{ maxWidth: 860, margin: "0 auto", width: "100%", position: "relative", zIndex: 1 }}>
 
         {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 44 }}>
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
           <p style={{ fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "#9d8ff0", marginBottom: 16, fontWeight: 600 }}>AI Sandbox</p>
-          <h2 className="font-display" style={{ fontSize: "clamp(32px, 5vw, 56px)", fontWeight: 900, color: "white", marginBottom: 14 }}>
+          <h2 className="font-display" style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 900, color: "white", marginBottom: 14 }}>
             Ask Me <span style={{ background: "linear-gradient(135deg, #9d8ff0, #00d4ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Anything</span>
           </h2>
           <p style={{ color: "#94a3b8", fontSize: 16 }}>RAG-powered assistant grounded in real portfolio content</p>
