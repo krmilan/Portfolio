@@ -65,7 +65,7 @@ const CATEGORIES = [
       { name: "GitHub",         icon: "https://cdn.simpleicons.org/github/ffffff" },
     ],
   },
-] as const;
+];
 
 const ALL_SKILLS = CATEGORIES.flatMap((c) => c.skills);
 
