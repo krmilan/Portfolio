@@ -9,18 +9,15 @@ import ProjectsSection from "@/components/sections/projects";
 import ChatSection from "@/components/sections/chat";
 import Footer from "@/components/sections/footer";
 import LoadingScreen from "@/components/ui/loading-screen";
-import Mascot from "@/components/ui/mascot";
-
-type MascotState = "idle" | "typing" | "active" | "sleeping" | "blinking";
 
 const SECTION_IDS = ["about", "skills", "projects", "chat", "footer-section"];
 
 export default function ClientShell() {
-  const [mascotState, setMascotState] = useState<MascotState>("idle");
   
   const [appReady, setAppReady] = useState<boolean>(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (sessionStorage.getItem("portfolio_loaded")) setAppReady(true);
   }, []);
 
@@ -99,12 +96,11 @@ export default function ClientShell() {
         <HeroSection />
         <SkillsSection />
         <ProjectsSection />
-        <ChatSection onMascotStateChange={setMascotState} />
+        <ChatSection />
         <div id="footer-section">
           <Footer />
         </div>
       </main>
-      <Mascot />
     </>
   );
 }

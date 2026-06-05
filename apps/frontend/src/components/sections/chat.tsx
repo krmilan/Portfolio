@@ -106,7 +106,7 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
             </div>
 
             {/* Messages */}
-            <div data-chat-messages style={{ height: 380, overflowY: "auto", padding: "20px 22px", display: "flex", flexDirection: "column", gap: 18 }}>
+            <div data-chat-messages style={{ height: "clamp(380px, 50vh, 520px)", overflowY: "auto", padding: "28px 26px", display: "flex", flexDirection: "column", gap: 20 }}>
               {messages.map(msg => (
                 <div key={msg.id} style={{ display: "flex", gap: 10, flexDirection: msg.role === "user" ? "row-reverse" : "row", animation: "slide-in 0.25s ease forwards" }}>
                   <div style={{
@@ -182,11 +182,11 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
                   onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                   placeholder="Ask about Milan's projects, stack, architecture..."
                   disabled={loading}
-                  style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 14, color: "white", caretColor: "#00d4ff", fontFamily: "DM Sans, sans-serif" }}
+                  style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 16, color: "white", caretColor: "#00d4ff", fontFamily: "DM Sans, sans-serif" }}
                 />
               </div>
               <button onClick={handleSend} disabled={loading || !input.trim()} aria-label="Send message" style={{
-                width: 42, height: 42, borderRadius: 11, border: "none",
+                width: 48, height: 48, borderRadius: 12, border: "none",
                 cursor: input.trim() && !loading ? "pointer" : "not-allowed",
                 background: input.trim() && !loading ? "linear-gradient(135deg, #7c6fcd, #9d8ff0)" : "rgba(255,255,255,0.05)",
                 color: input.trim() && !loading ? "white" : "rgba(255,255,255,0.2)",
