@@ -41,9 +41,9 @@ export default function HeroSection() {
     <section
       id="about"
       className="hero-pad"
-      style={{ position: "relative", overflow: "hidden", minHeight: "100vh" }}
+      style={{ position: "relative", overflow: "hidden", minHeight: "100vh", display: "flex", alignItems: "center" }}
     >
-      <div style={{ maxWidth: 1152, margin: "0 auto", width: "100%", position: "relative", zIndex: 1 }}>
+      <div style={{ maxWidth: 1152, margin: "0 auto", width: "100%", position: "relative", zIndex: 1,  paddingTop: 80, paddingBottom: 80  }}>
         <div className="hero-grid">
           <div>
             {profile.open_to_work && (
@@ -114,28 +114,6 @@ export default function HeroSection() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* GitHub Activity — desktop only, full width below grid */}
-        <div style={{ marginTop: 48, paddingTop: 36, borderTop: "1px solid rgba(255,255,255,0.06)" }} className="github-activity-block">
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 11, letterSpacing: "0.25em", textTransform: "uppercase", color: "#9d8ff0", fontWeight: 600, fontFamily: "DM Sans, sans-serif" }}>GitHub Activity</span>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#00ffaa", boxShadow: "0 0 6px #00ffaa", animation: "glow-pulse 2s ease-in-out infinite" }} />
-            </div>
-            <a href="https://github.com/krmilan" target="_blank" rel="noopener noreferrer"
-              style={{ fontSize: 11, color: "#475569", textDecoration: "none", fontFamily: "monospace" }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = "#9d8ff0"}
-              onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = "#475569"}
-            >github.com/krmilan →</a>
-          </div>
-          <div style={{ borderRadius: 12, padding: "16px 20px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
-            <img loading="eager"
-              src="https://ghchart.rshah.org/9d8ff0/krmilan"
-              alt="Milan Ray's GitHub contribution graph"
-              style={{ width: "100%", height: "auto", display: "block", opacity: 0.85 }}
-            />
           </div>
         </div>
 

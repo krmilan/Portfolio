@@ -21,7 +21,7 @@ html {
 }
 
 section {
-  min-height: 100vh;
+  min-height: unset;
 }
 
 body {
@@ -69,7 +69,8 @@ body {
 .section-pad { padding: 100px 24px; position: relative; }
 .hero-pad {
   min-height: 100vh;
-  display: block;
+  display: flex;
+  align-items: center;
   padding: 100px 24px 80px;
   position: relative;
 }
@@ -102,7 +103,7 @@ body {
   .section { min-height: unset; }
   .hero-grid { grid-template-columns: 1fr; gap: 32px; }
   .terminal-card { display: none; }
-  .github-activity-block { display: none; }
+  .scroll-hint { display: flex; }
   .skills-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .projects-grid { grid-template-columns: 1fr; }
   .section-pad { padding: 70px 20px; }
@@ -160,12 +161,3 @@ body {
 .delay-300 { animation-delay: 300ms; }
 .delay-400 { animation-delay: 400ms; }
 .delay-500 { animation-delay: 500ms; }
-
-/* GitHub Activity block */
-.github-activity-block {
-  margin-top: 48px;
-  padding-top: 36px;
-  border-top: 1px solid rgba(255,255,255,0.06);
-  position: relative;
-  width: 100%;
-}
