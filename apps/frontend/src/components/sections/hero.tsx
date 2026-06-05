@@ -82,9 +82,9 @@ export default function HeroSection() {
               ))}
             </div>
             <div className="animate-fade-up delay-400" style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <a href="#projects" style={{ padding: "13px 26px", borderRadius: 12, fontWeight: 600, fontSize: 14, background: "linear-gradient(135deg, #7c6fcd, #9d8ff0)", color: "white", textDecoration: "none", boxShadow: "0 0 32px rgba(124,111,205,0.4)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontFamily: "DM Sans, sans-serif" }}>View Projects</a>
-              <a href="#chat" style={{ padding: "13px 26px", borderRadius: 12, fontWeight: 600, fontSize: 14, background: "rgba(255,255,255,0.07)", color: "white", border: "1px solid rgba(255,255,255,0.14)", textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", fontFamily: "DM Sans, sans-serif" }}>Ask AI Assistant</a>
-              <a href={profile.resume_url ?? "/resume.pdf"} style={{ padding: "13px 26px", borderRadius: 12, fontWeight: 600, fontSize: 14, background: "rgba(255,255,255,0.04)", color: "#cbd5e1", border: "1px solid rgba(255,255,255,0.09)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "DM Sans, sans-serif" }}>
+              <a href="#projects" aria-label="View Projects" style={{ padding: "13px 26px", borderRadius: 12, fontWeight: 600, fontSize: 14, background: "linear-gradient(135deg, #7c6fcd, #9d8ff0)", color: "white", textDecoration: "none", boxShadow: "0 0 32px rgba(124,111,205,0.4)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontFamily: "DM Sans, sans-serif" }}>View Projects</a>
+              <a href="#chat" aria-label="Ask AI Assistant" style={{ padding: "13px 26px", borderRadius: 12, fontWeight: 600, fontSize: 14, background: "rgba(255,255,255,0.07)", color: "white", border: "1px solid rgba(255,255,255,0.14)", textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", fontFamily: "DM Sans, sans-serif" }}>Ask AI Assistant</a>
+              <a href={profile.resume_url ?? "/resume.pdf"} aria-label="Download Resume" style={{ padding: "13px 26px", borderRadius: 12, fontWeight: 600, fontSize: 14, background: "rgba(255,255,255,0.04)", color: "#cbd5e1", border: "1px solid rgba(255,255,255,0.09)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "DM Sans, sans-serif" }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 Resume
               </a>
@@ -134,7 +134,7 @@ export default function HeroSection() {
             <img loading="eager"
               src="https://ghchart.rshah.org/9d8ff0/krmilan"
               alt="Milan Ray's GitHub contribution graph"
-              style={{ width: "1000%", height: "auto", display: "block", opacity: 0.85 }}
+              style={{ width: "100%", height: "auto", display: "block", opacity: 0.85 }}
             />
           </div>
         </div>

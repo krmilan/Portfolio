@@ -44,8 +44,8 @@ const CATEGORIES = [
       { name: "RAG Pipelines", icon: "https://cdn.simpleicons.org/googlegemini/8e75b2" },
       { name: "pgvector",      icon: "https://cdn.simpleicons.org/postgresql/336791" },
       { name: "Gemini API",    icon: "https://cdn.simpleicons.org/googlegemini/8e75b2" },
-      { name: "Groq / Llama",  icon: "https://cdn.simpleicons.org/groq/f55036" },
-      { name: "Embeddings",    icon: "https://cdn.simpleicons.org/openai/ffffff" },
+      { name: "Groq / Llama",  icon: "https://cdn.simpleicons.org/ollama/ffffff" },
+      { name: "Embeddings",    icon: "https://cdn.simpleicons.org/huggingface/ffd21e" },
       { name: "Vector Search", icon: "https://cdn.simpleicons.org/elastic/005571" },
       { name: "LangChain",     icon: "https://cdn.simpleicons.org/langchain/ffffff" },
     ],
@@ -117,18 +117,6 @@ export default function Skills() {
 
       {/* Container — exactly matches hero: maxWidth 1152, margin auto */}
       <div style={{ maxWidth: 1152, margin: "0 auto", width: "100%", position: "relative", zIndex: 1 }}>
-
-        {/* Section label */}
-        <p style={{
-          fontFamily: "monospace",
-          fontSize: 11,
-          letterSpacing: "0.2em",
-          textTransform: "uppercase",
-          color: "#4ade80",
-          opacity: 0.85,
-          marginBottom: 12,
-        }}>
-        </p>
 
         {/* Heading — same pattern as other sections */}
         <h2 style={{
