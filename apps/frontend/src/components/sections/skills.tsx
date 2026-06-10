@@ -87,9 +87,10 @@ export default function Skills() {
   return (
     <section
       id="skills"
+      data-snap
       aria-label="Skills and Tech Stack"
-      className="hero-pad"
-      style={{ position: "relative", overflow: "hidden" }}
+      className="section-pad"
+      style={{ position: "relative" }}
     >
       {/* Orb glow — matches bg-orbs aesthetic */}
       <div
@@ -118,6 +119,9 @@ export default function Skills() {
       {/* Container — exactly matches hero: maxWidth 1152, margin auto */}
       <div style={{ maxWidth: 1152, margin: "0 auto", width: "100%", position: "relative", zIndex: 1 }}>
 
+        <p style={{ fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "#00d4ff", marginBottom: 16, fontWeight: 600 }}>
+          Skill
+        </p>
         {/* Heading — same pattern as other sections */}
         <h2 style={{
           fontSize: "clamp(1.75rem, 3vw, 2.5rem)",

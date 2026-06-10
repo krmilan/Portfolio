@@ -46,8 +46,22 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
 
   useEffect(() => {
     if (!hasMounted.current) { hasMounted.current = true; return; }
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = document.querySelector("[data-chat-messages]") as HTMLElement | null;
+    if (container) container.scrollTop = container.scrollHeight;
   }, [messages]);
+
+  // Block wheel/touch from reaching body snap container while scrolling inside chat
+  useEffect(() => {
+    const el = document.querySelector("[data-chat-messages]") as HTMLElement | null;
+    if (!el) return;
+    const block = (e: Event) => e.stopPropagation();
+    el.addEventListener("wheel", block, { passive: false });
+    el.addEventListener("touchmove", block, { passive: false });
+    return () => {
+      el.removeEventListener("wheel", block);
+      el.removeEventListener("touchmove", block);
+    };
+  }, []);
 
   async function handleSend() {
     const msg = input.trim();
@@ -69,25 +83,26 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
   }
 
   return (
-    <section id="chat" style={{ display: "flex", alignItems: "center", padding: "80px 48px", position: "relative" }}>
+    <section id="chat" data-snap className="section-pad" style={{ overflowY: "auto", justifyContent: "center", paddingTop: 80 }}>
+      <style>{`@media (max-width: 768px) { #chat.section-pad { padding-top: 72px !important; padding-bottom: 40px !important; justify-content: flex-start !important; } }`}</style>
       <div style={{ maxWidth: 860, margin: "0 auto", width: "100%", position: "relative", zIndex: 1 }}>
 
         {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 32 }}>
-          <p style={{ fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "#9d8ff0", marginBottom: 16, fontWeight: 600 }}>AI Sandbox</p>
-          <h2 className="font-display" style={{ fontSize: "clamp(28px, 4vw, 44px)", fontWeight: 900, color: "white", marginBottom: 14 }}>
+        <div style={{ textAlign: "center", marginBottom: 20 }}>
+          <p style={{ fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "#9d8ff0", marginBottom: 10, fontWeight: 600 }}>AI Sandbox</p>
+          <h2 className="font-display" style={{ fontSize: "clamp(24px, 3.5vw, 38px)", fontWeight: 900, color: "white", marginBottom: 8 }}>
             Ask Me <span style={{ background: "linear-gradient(135deg, #9d8ff0, #00d4ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Anything</span>
           </h2>
-          <p style={{ color: "#94a3b8", fontSize: 16 }}>RAG-powered assistant grounded in real portfolio content</p>
+          <p style={{ color: "#94a3b8", fontSize: 14 }}>RAG-powered assistant grounded in real portfolio content</p>
         </div>
 
         {/* Card */}
-        <div style={{ position: "relative" }}>
+        <div style={{ position: "relative" }} onClick={e => e.stopPropagation()} onWheel={e => e.stopPropagation()} onTouchMove={e => e.stopPropagation()}>
           <div style={{ position: "absolute", inset: -20, background: "radial-gradient(ellipse, rgba(124,111,205,0.1) 0%, transparent 70%)", borderRadius: 28, filter: "blur(20px)", pointerEvents: "none" }} />
           <div className="glass-bright" style={{ borderRadius: 24, overflow: "hidden", boxShadow: "0 32px 80px rgba(0,0,0,0.5)", position: "relative" }}>
 
             {/* Top bar */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 22px", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.02)", flexWrap: "wrap", gap: 8 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 20px", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "rgba(255,255,255,0.02)", flexWrap: "wrap", gap: 8 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{ display: "flex", gap: 6 }}>
                   {["rgba(255,100,100,0.7)", "rgba(255,200,0,0.7)", "rgba(0,220,100,0.7)"].map((c, i) => (
@@ -106,7 +121,11 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
             </div>
 
             {/* Messages */}
-            <div data-chat-messages style={{ height: "clamp(380px, 50vh, 520px)", overflowY: "auto", padding: "28px 26px", display: "flex", flexDirection: "column", gap: 20 }}>
+            <style>{`
+              .chat-messages { height: clamp(320px, 42vh, 480px); }
+              @media (max-width: 768px) { .chat-messages { height: auto; min-height: 220px; max-height: 45vh; } }
+            `}</style>
+            <div data-chat-messages className="chat-messages" style={{ overflowY: "auto", padding: "20px 22px", display: "flex", flexDirection: "column", gap: 16 }}>
               {messages.map(msg => (
                 <div key={msg.id} style={{ display: "flex", gap: 10, flexDirection: msg.role === "user" ? "row-reverse" : "row", animation: "slide-in 0.25s ease forwards" }}>
                   <div style={{
@@ -172,8 +191,8 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
             )}
 
             {/* Input */}
-            <div style={{ padding: "14px 18px", borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", gap: 10, alignItems: "center", background: "rgba(255,255,255,0.02)" }}>
-              <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px" }}>
+            <div style={{ padding: "12px 16px", borderTop: "1px solid rgba(255,255,255,0.07)", display: "flex", gap: 10, alignItems: "center", background: "rgba(255,255,255,0.02)" }}>
+              <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, padding: "10px 14px" }} onClick={e => e.stopPropagation()} onPointerDown={e => e.stopPropagation()}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: "#475569", flexShrink: 0 }}>
                   <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
                 </svg>
@@ -185,7 +204,7 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
                   style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 16, color: "white", caretColor: "#00d4ff", fontFamily: "DM Sans, sans-serif" }}
                 />
               </div>
-              <button onClick={handleSend} disabled={loading || !input.trim()} aria-label="Send message" style={{
+              <button onClick={handleSend} onPointerDown={e => e.stopPropagation()} disabled={loading || !input.trim()} aria-label="Send message" style={{
                 width: 48, height: 48, borderRadius: 12, border: "none",
                 cursor: input.trim() && !loading ? "pointer" : "not-allowed",
                 background: input.trim() && !loading ? "linear-gradient(135deg, #7c6fcd, #9d8ff0)" : "rgba(255,255,255,0.05)",

@@ -40,6 +40,7 @@ export default function HeroSection() {
   return (
     <section
       id="about"
+      data-snap
       className="hero-pad"
       style={{ position: "relative", overflow: "hidden", minHeight: "100vh", display: "flex", alignItems: "center" }}
     >
