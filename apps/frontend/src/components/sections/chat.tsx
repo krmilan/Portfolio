@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { sendChat, type ChatMessage } from "@/lib/api";
 
 type MascotState = "idle" | "typing" | "active";
@@ -17,24 +17,65 @@ const SUGGESTIONS = [
 const STATUS_LABELS = ["thinking...", "searching vectors...", "grounding response...", "almost there..."];
 
 function renderContent(text: string) {
-  return text.split("\n").map((line, i) => {
-    if (line.startsWith("* ") || line.startsWith("- ")) {
-      return <p key={i} style={{ paddingLeft: 14, color: "#e2e8f0", margin: "3px 0" }}>• {line.slice(2)}</p>;
+  const lines = text.split("\n").filter((l, i, arr) => !(l.trim() === "" && arr[i - 1]?.trim() === ""));
+  const nodes: React.ReactNode[] = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    // Section header: ends with ":" and not a sentence (no period, short)
+    if (trimmed.endsWith(":") && trimmed.length < 40 && !trimmed.includes(".")) {
+      nodes.push(
+        <p key={i} style={{ color: "#00d4ff", fontWeight: 700, fontSize: 12, letterSpacing: "0.04em", textTransform: "uppercase", margin: "10px 0 4px", opacity: 0.9 }}>
+          {trimmed.slice(0, -1)}
+        </p>
+      );
     }
-    if (/^\d+\. /.test(line)) {
-      return <p key={i} style={{ paddingLeft: 14, color: "#e2e8f0", margin: "3px 0" }}>{line}</p>;
+    // Bullet
+    else if (trimmed.startsWith("* ") || trimmed.startsWith("- ") || trimmed.startsWith("• ")) {
+      const content = trimmed.replace(/^[\*\-•]\s+/, "");
+      const parts = content.split(/(\*\*[^*]+\*\*)/g);
+      nodes.push(
+        <div key={i} style={{ display: "flex", gap: 8, margin: "2px 0", alignItems: "flex-start" }}>
+          <span style={{ color: "#9d8ff0", fontSize: 10, marginTop: 5, flexShrink: 0 }}>▸</span>
+          <span style={{ color: "#cbd5e1", fontSize: 14, lineHeight: 1.6 }}>
+            {parts.map((p, j) => p.startsWith("**") && p.endsWith("**")
+              ? <strong key={j} style={{ color: "white", fontWeight: 600 }}>{p.slice(2, -2)}</strong>
+              : p)}
+          </span>
+        </div>
+      );
     }
-    const parts = line.split(/(\*\*[^*]+\*\*)/g);
-    return (
-      <p key={i} style={{ margin: "3px 0", color: "#e2e8f0" }}>
-        {parts.map((part, j) =>
-          part.startsWith("**") && part.endsWith("**")
-            ? <strong key={j} style={{ color: "white", fontWeight: 700 }}>{part.slice(2, -2)}</strong>
-            : part
-        )}
-      </p>
-    );
-  });
+    // Numbered list
+    else if (/^\d+\.\s/.test(trimmed)) {
+      const num = trimmed.match(/^(\d+)\./)?.[1];
+      const content = trimmed.replace(/^\d+\.\s+/, "");
+      nodes.push(
+        <div key={i} style={{ display: "flex", gap: 8, margin: "3px 0", alignItems: "flex-start" }}>
+          <span style={{ color: "#9d8ff0", fontSize: 11, fontWeight: 700, flexShrink: 0, minWidth: 16 }}>{num}.</span>
+          <span style={{ color: "#cbd5e1", fontSize: 14, lineHeight: 1.6 }}>{content}</span>
+        </div>
+      );
+    }
+    // Empty line → small spacer
+    else if (trimmed === "") {
+      nodes.push(<div key={i} style={{ height: 4 }} />);
+    }
+    // Normal paragraph
+    else {
+      const parts = trimmed.split(/(\*\*[^*]+\*\*)/g);
+      nodes.push(
+        <p key={i} style={{ margin: "2px 0", color: "#e2e8f0", fontSize: 14, lineHeight: 1.65 }}>
+          {parts.map((p, j) => p.startsWith("**") && p.endsWith("**")
+            ? <strong key={j} style={{ color: "white", fontWeight: 600 }}>{p.slice(2, -2)}</strong>
+            : p)}
+        </p>
+      );
+    }
+    i++;
+  }
+  return nodes;
 }
 
 export default function ChatSection({ onMascotStateChange }: { onMascotStateChange?: (s: MascotState) => void }) {
@@ -165,11 +206,13 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
                     {msg.role === "user" ? "M" : "AI"}
                   </div>
                   <div style={{
-                    maxWidth: "78%", padding: "11px 16px", borderRadius: 14, fontSize: 14, lineHeight: 1.65,
+                    maxWidth: msg.role === "user" ? "72%" : "92%",
+                    width: msg.role === "assistant" ? "100%" : undefined,
+                    padding: "11px 16px", borderRadius: 14, fontSize: 14, lineHeight: 1.65,
                     borderTopRightRadius: msg.role === "user" ? 4 : 14,
                     borderTopLeftRadius: msg.role === "user" ? 14 : 4,
-                    background: msg.role === "user" ? "rgba(124,111,205,0.15)" : "rgba(255,255,255,0.05)",
-                    border: msg.role === "user" ? "1px solid rgba(124,111,205,0.25)" : "1px solid rgba(255,255,255,0.09)",
+                    background: msg.role === "user" ? "rgba(124,111,205,0.15)" : "rgba(255,255,255,0.04)",
+                    border: msg.role === "user" ? "1px solid rgba(124,111,205,0.25)" : "1px solid rgba(255,255,255,0.07)",
                   }}>
                     {renderContent(msg.content)}
                     {msg.sources && msg.sources.length > 0 && (
