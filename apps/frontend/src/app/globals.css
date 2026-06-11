@@ -52,6 +52,13 @@ body {
   }
 }
 
+/* hero never clips — buttons must be reachable */
+@media (min-width: 1025px) {
+  section[data-snap]#about {
+    overflow: visible;
+  }
+}
+
 /* scroll-margin compensates for fixed 64px navbar */
 section[data-snap] {
   scroll-margin-top: 64px;
@@ -145,11 +152,15 @@ section[data-snap]:not(#about) {
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
+  section[data-snap] {
+    height: auto !important;
+    min-height: 100svh;
+    overflow: visible !important;
+    scroll-snap-align: none;
+  }
   .hero-grid { grid-template-columns: 1fr; gap: 40px; }
   .terminal-card { display: none; }
-  .hero-pad { padding: 100px 48px 60px; }
-  .animate-fade-up, .animate-fade-in { animation-fill-mode: both;}
-  section[data-snap] { overflow: visible; }
+  .hero-pad { padding: 100px 48px 60px; min-height: 100svh; }
 }
 
 @media (max-width: 768px) {
@@ -208,8 +219,8 @@ section[data-snap]:not(#about) {
   100% { transform: translateX(-50%); }
 }
 
-.animate-fade-up  { animation: fade-up 0.6s ease forwards; }
-.animate-fade-in  { animation: fade-in 0.4s ease forwards; }
+.animate-fade-up  { animation: fade-up 0.6s ease both; }
+.animate-fade-in  { animation: fade-in 0.4s ease both; }
 .animate-slide-in { animation: slide-in 0.25s ease forwards; }
 .animate-glow     { animation: glow-pulse 4s ease-in-out infinite; }
 

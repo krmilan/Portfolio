@@ -182,7 +182,7 @@ export default function HeroSection() {
       id="about"
       data-snap
       className="hero-pad"
-      style={{ position: "relative", overflow: "hidden", minHeight: "100vh", display: "flex", alignItems: "center" }}
+     style={{ position: "relative", overflow: "visible", minHeight: "100vh", display: "flex", alignItems: "center" }}
     >
       <div style={{ maxWidth: 1152, margin: "0 auto", width: "100%", position: "relative", zIndex: 1 }}>
         <div className="hero-grid">
@@ -234,8 +234,8 @@ export default function HeroSection() {
           </div>
 
           {/* RIGHT — interactive terminal chat */}
-          <div className="terminal-card">
-            <div style={{ position: "absolute", inset: -20, background: "radial-gradient(ellipse, rgba(124,111,205,0.18) 0%, transparent 70%)", borderRadius: 24, filter: "blur(20px)" }} />
+          <div className="terminal-card" style={{ position: "relative" }}>
+            <div style={{ position: "absolute", inset: -20, background: "radial-gradient(ellipse, rgba(124,111,205,0.18) 0%, transparent 70%)", borderRadius: 24, filter: "blur(20px)", pointerEvents: "none" }} />
             <div className="glass-bright" style={{ borderRadius: 20, width: 360, boxShadow: "0 32px 64px rgba(0,0,0,0.5)", position: "relative", overflow: "hidden" }}>
 
               {/* Title bar */}
