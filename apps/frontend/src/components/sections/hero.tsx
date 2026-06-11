@@ -316,7 +316,7 @@ export default function HeroSection() {
                   style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 12, color: limitReached ? "#334155" : "white", caretColor: "#9d8ff0", fontFamily: "monospace" }}
                 />
                 <button
-                  onClick={handleSend}
+                  onClick={() => handleSend()}
                   disabled={loading || !input.trim() || limitReached}
                   aria-label="Send"
                   style={{ width: 28, height: 28, borderRadius: 7, border: "none", cursor: input.trim() && !loading && !limitReached ? "pointer" : "not-allowed", background: input.trim() && !loading && !limitReached ? "rgba(157,143,240,0.25)" : "transparent", color: input.trim() && !loading && !limitReached ? "#9d8ff0" : "#334155", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s", flexShrink: 0 }}
