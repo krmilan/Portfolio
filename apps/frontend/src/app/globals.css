@@ -144,6 +144,14 @@ section[data-snap]:not(#about) {
   .projects-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
+@media (min-width: 769px) and (max-width: 1024px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+  .terminal-card { display: none; }
+  .hero-pad { padding: 100px 48px 60px; }
+  .animate-fade-up, .animate-fade-in { animation-fill-mode: both;}
+  section[data-snap] { overflow: visible; }
+}
+
 @media (max-width: 768px) {
   /* Mobile: disable snap, natural scroll */
   section[data-snap] {
