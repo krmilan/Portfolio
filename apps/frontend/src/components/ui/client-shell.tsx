@@ -53,9 +53,9 @@ export default function ClientShell() {
         <BgOrbs />
         <Navbar />
         <HeroSection />
-        <ExperienceSection />
         <ProjectsSection />
         <SkillsSection />
+        <ExperienceSection />
         <ChatSection />
         <Footer />
       </main>

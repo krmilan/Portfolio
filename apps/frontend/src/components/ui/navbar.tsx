@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-const links = ["About", "Skills", "Projects", "Experience", "AI Chat"];
+const links = ["About", "Projects", "Skills", "Experience", "AI Chat"];
 
 const linkHref: Record<string, string> = {
   "AI Chat": "chat",

@@ -13,6 +13,9 @@ const SUGGESTIONS = [
   "Tell me about Milan's background",
 ];
 
+// Rotating fun status labels in title bar
+const STATUS_LABELS = ["thinking...", "searching vectors...", "grounding response...", "almost there..."];
+
 function renderContent(text: string) {
   return text.split("\n").map((line, i) => {
     if (line.startsWith("* ") || line.startsWith("- ")) {
@@ -40,6 +43,8 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [statusIdx, setStatusIdx] = useState(0);
+  const statusRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const hasMounted = useRef(false);
@@ -69,6 +74,8 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
     setMessages(p => [...p, { id: Date.now().toString(), role: "user", content: msg }]);
     setInput("");
     setLoading(true);
+    setStatusIdx(0);
+    statusRef.current = setInterval(() => setStatusIdx(i => (i + 1) % STATUS_LABELS.length), 900);
     onMascotStateChange?.("typing");
     try {
       const history = messages.filter(m => m.id !== "init").map(({ role, content }) => ({ role, content }));
@@ -79,7 +86,10 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
     } catch {
       setMessages(p => [...p, { id: (Date.now() + 1).toString(), role: "assistant", content: "Something went wrong. Please try again." }]);
       onMascotStateChange?.("idle");
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+      if (statusRef.current) clearInterval(statusRef.current);
+    }
   }
 
   return (
@@ -111,31 +121,46 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
                 </div>
                 <span style={{ fontSize: 11, fontFamily: "monospace", color: "#64748b" }}>portfolio-rag</span>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 11, fontFamily: "monospace", color: "#475569" }}>
-                <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#00ffaa", boxShadow: "0 0 6px #00ffaa", animation: "glow-pulse 2s ease-in-out infinite" }} />
-                  gemini-embedding-001
-                </span>
-                <span style={{ display: "none" }} className="md-only">llama-3.1-8b</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, fontFamily: "monospace", color: "#475569" }}>
+                {loading ? (
+                  <span style={{ color: "#9d8ff0", animation: "fade-cycle 0.4s ease" }}>{STATUS_LABELS[statusIdx]}</span>
+                ) : (
+                  <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#00ffaa", boxShadow: "0 0 6px #00ffaa", animation: "glow-pulse 2s ease-in-out infinite" }} />
+                    gemini-embedding-001
+                  </span>
+                )}
               </div>
             </div>
 
             {/* Messages */}
-            <style>{`
-              .chat-messages { height: clamp(320px, 42vh, 480px); }
-              @media (max-width: 768px) { .chat-messages { height: auto; min-height: 220px; max-height: 45vh; } }
-            `}</style>
+      <style>{`
+        @keyframes wave-bar { 0%, 100% { transform: scaleY(0.4); opacity: 0.5; } 50% { transform: scaleY(1); opacity: 1; } }
+        @keyframes fade-cycle { 0% { opacity: 0; transform: translateY(4px); } 100% { opacity: 1; transform: translateY(0); } }
+        .chat-messages { height: clamp(320px, 42vh, 480px); }
+        @media (max-width: 768px) { .chat-messages { height: auto; min-height: 220px; max-height: 45vh; } }
+      `}</style>
             <div data-chat-messages className="chat-messages" style={{ overflowY: "auto", padding: "20px 22px", display: "flex", flexDirection: "column", gap: 16 }}>
-              {messages.map(msg => (
+              {messages.length === 1 && (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, padding: "24px 0", opacity: 0.5 }}>
+                  <div style={{ fontSize: 28 }}>⚡</div>
+                  <p style={{ fontSize: 12, color: "#475569", fontFamily: "monospace", textAlign: "center" }}>RAG pipeline ready · 17 docs indexed</p>
+                </div>
+              )}
+              {messages.map((msg, idx) => (
                 <div key={msg.id} style={{ display: "flex", gap: 10, flexDirection: msg.role === "user" ? "row-reverse" : "row", animation: "slide-in 0.25s ease forwards" }}>
                   <div style={{
                     width: 30, height: 30, borderRadius: 9, flexShrink: 0,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontSize: 11, fontWeight: 700, fontFamily: "Syne, sans-serif",
-                    background: msg.role === "user" ? "linear-gradient(135deg, #7c6fcd, #9d8ff0)" : "rgba(255,255,255,0.06)",
+                    background: msg.role === "user"
+                      ? "linear-gradient(135deg, #7c6fcd, #9d8ff0)"
+                      : "linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,255,170,0.08))",
                     color: msg.role === "user" ? "white" : "#00d4ff",
-                    border: msg.role === "user" ? "none" : "1px solid rgba(0,212,255,0.2)",
-                    boxShadow: msg.role === "user" ? "0 0 10px rgba(124,111,205,0.35)" : "none",
+                    border: msg.role === "user" ? "none" : "1px solid rgba(0,212,255,0.3)",
+                    boxShadow: msg.role === "user"
+                      ? "0 0 10px rgba(124,111,205,0.35)"
+                      : idx === messages.length - 1 ? "0 0 12px rgba(0,212,255,0.2)" : "none",
                   }}>
                     {msg.role === "user" ? "M" : "AI"}
                   </div>
@@ -160,13 +185,11 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
 
               {loading && (
                 <div style={{ display: "flex", gap: 10 }}>
-                  <div style={{ width: 30, height: 30, borderRadius: 9, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, background: "rgba(255,255,255,0.06)", color: "#00d4ff", border: "1px solid rgba(0,212,255,0.2)" }}>AI</div>
-                  <div style={{ padding: "13px 16px", borderRadius: 14, borderTopLeftRadius: 4, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)" }}>
-                    <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-                      {[0, 150, 300].map(d => (
-                        <div key={d} style={{ width: 6, height: 6, borderRadius: "50%", background: "#9d8ff0", animation: "bounce-dot 1.2s ease-in-out infinite", animationDelay: `${d}ms` }} />
-                      ))}
-                    </div>
+                  <div style={{ width: 30, height: 30, borderRadius: 9, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, background: "linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,255,170,0.08))", color: "#00d4ff", border: "1px solid rgba(0,212,255,0.3)", boxShadow: "0 0 12px rgba(0,212,255,0.2)" }}>AI</div>
+                  <div style={{ padding: "13px 16px", borderRadius: 14, borderTopLeftRadius: 4, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)", display: "flex", alignItems: "center", gap: 3 }}>
+                    {[0, 1, 2, 3].map(d => (
+                      <div key={d} style={{ width: 3, height: 14, borderRadius: 2, background: "#9d8ff0", animation: "wave-bar 1s ease-in-out infinite", animationDelay: `${d * 120}ms` }} />
+                    ))}
                   </div>
                 </div>
               )}
@@ -176,16 +199,21 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
             {/* Suggestions */}
             {messages.length === 1 && (
               <div style={{ padding: "10px 22px", borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {SUGGESTIONS.map(s => (
-                  <button key={s} aria-label={`Suggested question: ${s}`} onClick={() => { setInput(s); inputRef.current?.focus(); }} style={{
-                    fontSize: 12, padding: "6px 12px", borderRadius: 8, cursor: "pointer",
-                    background: "transparent", color: "#94a3b8",
-                    border: "1px solid rgba(255,255,255,0.09)", transition: "all 0.2s",
-                    fontFamily: "DM Sans, sans-serif",
+                {[
+                  { text: "What's Milan's tech stack?", emoji: "⚡" },
+                  { text: "How does the RAG system work?", emoji: "🔍" },
+                  { text: "What projects has Milan built?", emoji: "🚀" },
+                  { text: "Tell me about Milan's background", emoji: "👤" },
+                ].map(({ text, emoji }) => (
+                  <button key={text} aria-label={`Suggested question: ${text}`} onClick={() => { setInput(text); inputRef.current?.focus(); }} style={{
+                    fontSize: 12, padding: "7px 13px", borderRadius: 20, cursor: "pointer",
+                    background: "rgba(157,143,240,0.06)", color: "#94a3b8",
+                    border: "1px solid rgba(157,143,240,0.15)", transition: "all 0.2s",
+                    fontFamily: "DM Sans, sans-serif", display: "flex", alignItems: "center", gap: 6,
                   }}
-                    onMouseEnter={e => { (e.target as HTMLElement).style.color = "#9d8ff0"; (e.target as HTMLElement).style.borderColor = "rgba(157,143,240,0.4)"; }}
-                    onMouseLeave={e => { (e.target as HTMLElement).style.color = "#94a3b8"; (e.target as HTMLElement).style.borderColor = "rgba(255,255,255,0.09)"; }}
-                  >{s}</button>
+                    onMouseEnter={e => { const el = e.currentTarget; el.style.color = "#e2e8f0"; el.style.borderColor = "rgba(157,143,240,0.45)"; el.style.background = "rgba(157,143,240,0.12)"; }}
+                    onMouseLeave={e => { const el = e.currentTarget; el.style.color = "#94a3b8"; el.style.borderColor = "rgba(157,143,240,0.15)"; el.style.background = "rgba(157,143,240,0.06)"; }}
+                  ><span>{emoji}</span>{text}</button>
                 ))}
               </div>
             )}
