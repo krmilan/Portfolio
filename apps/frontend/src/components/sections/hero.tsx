@@ -10,8 +10,8 @@ const FALLBACK: Profile = {
   name: "Milan Ray",
   bio: "I build production-grade systems where modern web engineering meets real AI — RAG pipelines, vector search, and full-stack applications built to ship.",
   github_url: "https://github.com/krmilan",
-  linkedin_url: "https://linkedin.com/in/krmilan",
-  email: "milan@email.com",
+  linkedin_url: "https://linkedin.com/in/milanray",
+  email: "milanray.dev@gmail.com",
   open_to_work: true,
   roles: ["AI Engineer", "Full-Stack Dev", "RAG Architect", "Backend Engineer"],
   extra_links: [],
@@ -173,7 +173,7 @@ export default function HeroSection() {
   }
 
   const gh = profile.github_url || "https://github.com/krmilan";
-  const li = profile.linkedin_url || "https://linkedin.com";
+  const li = profile.linkedin_url || "https://linkedin.com/in/milanray";
   const extraLinks: ExtraLink[] = profile.extra_links ?? [];
   const limitReached = msgCount >= MAX_MESSAGES;
 

@@ -1,42 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
-const CONTACT = [
-  {
-    label: "Email",
-    value: "milanray.dev@gmail.com",
-    href: "mailto:milanray.dev@gmail.com",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <rect x="2" y="4" width="20" height="16" rx="3"/>
-        <polyline points="2,4 12,13 22,4"/>
-      </svg>
-    ),
-    accent: "#9d8ff0",
-  },
-  {
-    label: "GitHub",
-    value: "github.com/krmilan",
-    href: "https://github.com/krmilan",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
-      </svg>
-    ),
-    accent: "#00d4ff",
-  },
-  {
-    label: "LinkedIn",
-    value: "linkedin.com/in/krmilan",
-    href: "https://linkedin.com/in/krmilan",
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-      </svg>
-    ),
-    accent: "#00ffaa",
-  },
+interface ContactItem {
+  id: string;
+  label: string;
+  value: string;
+  href: string;
+  accent: string;
+  display_order: number;
+}
+
+const FALLBACK_CONTACT: ContactItem[] = [
+  { id: "1", label: "Email",    value: "milanray.dev@gmail.com", href: "mailto:milanray.dev@gmail.com",  accent: "#9d8ff0", display_order: 1 },
+  { id: "2", label: "GitHub",   value: "github.com/krmilan",      href: "https://github.com/krmilan",    accent: "#00d4ff", display_order: 2 },
+  { id: "3", label: "LinkedIn", value: "linkedin.com/in/krmilan", href: "https://linkedin.com/in/milanray", accent: "#00ffaa", display_order: 3 },
 ];
 
 const NAV_LINKS = [
@@ -47,7 +26,7 @@ const NAV_LINKS = [
   { label: "AI Chat",    href: "#chat" },
 ];
 
-function ContactCard({ item }: { item: typeof CONTACT[number] }) {
+function ContactCard({ item }: { item: ContactItem }) {
   const [hov, setHov] = useState(false);
   return (
     <a
@@ -69,9 +48,9 @@ function ContactCard({ item }: { item: typeof CONTACT[number] }) {
         width: 40, height: 40, borderRadius: 10, flexShrink: 0,
         display: "flex", alignItems: "center", justifyContent: "center",
         background: `${item.accent}15`, border: `1px solid ${item.accent}${hov ? "44" : "25"}`,
-        color: item.accent, transition: "border-color 0.25s",
+        color: item.accent, transition: "border-color 0.25s", fontSize: 14, fontWeight: 700,
       }}>
-        {item.icon}
+        {item.label[0]}
       </div>
       <div style={{ minWidth: 0 }}>
         <p style={{ fontSize: 11, fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.35)", marginBottom: 2 }}>{item.label}</p>
@@ -84,13 +63,20 @@ function ContactCard({ item }: { item: typeof CONTACT[number] }) {
   );
 }
 
-// ─── Footer (contact + footer bar in one viewport-height section) ─────────────
-
 export default function Footer() {
+  const [contacts, setContacts] = useState<ContactItem[]>(FALLBACK_CONTACT);
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => {
+    supabase.from("contact_info").select("*").order("display_order")
+      .then(({ data }) => { if (data && data.length > 0) setContacts(data); });
+  }, []);
+
+  const emailItem = contacts.find(c => c.href.startsWith("mailto"));
+  const emailAddress = emailItem?.href.replace("mailto:", "") ?? "milanray.dev@gmail.com";
+
   function copyEmail() {
-    navigator.clipboard.writeText("milanray.dev@gmail.com").then(() => {
+    navigator.clipboard.writeText(emailAddress).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -114,16 +100,11 @@ export default function Footer() {
         }
       `}</style>
 
-      {/* Contact content — grows to fill available space, vertically centered accounting for navbar */}
       <div style={{ flex: 1, display: "flex", alignItems: "center", padding: "clamp(32px, 5vh, 64px) clamp(20px, 5vw, 48px) clamp(32px, 5vh, 64px)", position: "relative", marginTop: 64 }}>
-
-        {/* Ambient glow */}
         <div aria-hidden style={{
-          position: "absolute", top: "50%", left: "50%",
-          transform: "translate(-50%, -50%)",
+          position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
           width: 600, height: 300,
-          background: "radial-gradient(ellipse, #9d8ff012 0%, transparent 70%)",
-          pointerEvents: "none",
+          background: "radial-gradient(ellipse, #9d8ff012 0%, transparent 70%)", pointerEvents: "none",
         }} />
 
         <div style={{ maxWidth: 1152, margin: "0 auto", width: "100%", position: "relative", zIndex: 1 }}>
@@ -182,15 +163,15 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Right */}
+            {/* Right: dynamic contact cards */}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {CONTACT.map(c => <ContactCard key={c.label} item={c} />)}
+              {contacts.map(c => <ContactCard key={c.id} item={c} />)}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Footer bar — pinned to bottom */}
+      {/* Footer bar */}
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "20px 0", flexShrink: 0 }}>
         <div style={{
           maxWidth: 1152, margin: "0 auto",
@@ -198,7 +179,6 @@ export default function Footer() {
           display: "flex", alignItems: "center", justifyContent: "space-between",
           flexWrap: "wrap", gap: 16,
         }}>
-          {/* Brand */}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{
               width: 28, height: 28, borderRadius: 8,
@@ -210,13 +190,9 @@ export default function Footer() {
               Milan<span style={{ color: "#9d8ff0" }}>.</span>
             </span>
           </div>
-
-          {/* Nav */}
           <nav aria-label="Footer navigation" style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
             {NAV_LINKS.map(l => <FooterLink key={l.label} href={l.href} label={l.label} />)}
           </nav>
-
-          {/* Copyright */}
           <p style={{ fontSize: 12, fontFamily: "monospace", color: "rgba(255,255,255,0.25)" }}>
             © {new Date().getFullYear()} Milan Ray
           </p>
