@@ -34,7 +34,7 @@ export interface Project {
 
 export interface SkillItem {
   name: string;
-  pct: number;
+  icon?: string;
 }
 
 export interface Skill {

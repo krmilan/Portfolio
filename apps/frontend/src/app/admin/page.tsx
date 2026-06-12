@@ -584,11 +584,9 @@ export default function AdminPage() {
                   Icon slug = SimpleIcons name, e.g. "typescript", "react", "docker" — leave blank to hide icon
                 </div>
                 {s.items.map((item: any, i: number) => (
-                  <div key={i} style={{ display: "grid", gridTemplateColumns: "3fr 80px 2fr auto", gap: 8, marginBottom: 8 }}>
+                  <div key={i} style={{ display: "grid", gridTemplateColumns: "3fr 2fr auto", gap: 8, marginBottom: 8 }}>
                     <input style={inputStyle} value={item.name} placeholder="Skill name"
                       onChange={e => { const u = [...s.items]; u[i] = { ...item, name: e.target.value }; setSkills(ss => ss.map(x => x.id === s.id ? { ...x, items: u } : x)); }} />
-                    <input type="number" min={0} max={100} style={inputStyle} value={item.pct} placeholder="%"
-                      onChange={e => { const u = [...s.items]; u[i] = { ...item, pct: Number(e.target.value) }; setSkills(ss => ss.map(x => x.id === s.id ? { ...x, items: u } : x)); }} />
                     <input style={inputStyle} value={item.icon ?? ""} placeholder="e.g. typescript"
                       onChange={e => { const u = [...s.items]; u[i] = { ...item, icon: e.target.value }; setSkills(ss => ss.map(x => x.id === s.id ? { ...x, items: u } : x)); }} />
                     <button
@@ -597,7 +595,7 @@ export default function AdminPage() {
                   </div>
                 ))}
                 <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
-                  <button onClick={() => setSkills(ss => ss.map(x => x.id === s.id ? { ...x, items: [...x.items, { name: "", pct: 80, icon: "" }] } : x))} style={ghostBtn}>+ Skill</button>
+                  <button onClick={() => setSkills(ss => ss.map(x => x.id === s.id ? { ...x, items: [...x.items, { name: "", icon: "" }] } : x))} style={ghostBtn}>+ Skill</button>
                   <button onClick={() => saveSkill(s)} style={btnStyle}>Save</button>
                   <button onClick={() => deleteSkill(s.id)} style={dangerBtn}>Delete Category</button>
                 </div>
