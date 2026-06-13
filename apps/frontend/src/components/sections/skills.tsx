@@ -1,79 +1,69 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
-// ─── Data ────────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-const CATEGORIES = [
-  {
-    id: "frontend",
-    label: "Frontend",
-    color: "#818cf8",
-    glow: "rgba(129,140,248,0.18)",
-    skills: [
-      { name: "Next.js",        icon: "https://cdn.simpleicons.org/nextdotjs/ffffff" },
-      { name: "TypeScript",     icon: "https://cdn.simpleicons.org/typescript/3178c6" },
-      { name: "React",          icon: "https://cdn.simpleicons.org/react/61dafb" },
-      { name: "Tailwind CSS",   icon: "https://cdn.simpleicons.org/tailwindcss/38bdf8" },
-      { name: "Shadcn/UI",      icon: "https://cdn.simpleicons.org/shadcnui/ffffff" },
-      { name: "Framer Motion",  icon: "https://cdn.simpleicons.org/framer/ffffff" },
-      { name: "Zustand",        icon: "https://cdn.simpleicons.org/react/61dafb" },
-      { name: "TanStack Query", icon: "https://cdn.simpleicons.org/reactquery/ff4154" },
-    ],
-  },
-  {
-    id: "backend",
-    label: "Backend",
-    color: "#34d399",
-    glow: "rgba(52,211,153,0.18)",
-    skills: [
-      { name: "FastAPI",    icon: "https://cdn.simpleicons.org/fastapi/009688" },
-      { name: "Python",     icon: "https://cdn.simpleicons.org/python/3776ab" },
-      { name: "Pydantic",   icon: "https://cdn.simpleicons.org/pydantic/e92063" },
-      { name: "PostgreSQL", icon: "https://cdn.simpleicons.org/postgresql/336791" },
-      { name: "REST / SSE", icon: "https://cdn.simpleicons.org/fastapi/009688" },
-      { name: "Node.js",    icon: "https://cdn.simpleicons.org/nodedotjs/339933" },
-    ],
-  },
-  {
-    id: "ai",
-    label: "AI & RAG",
-    color: "#f472b6",
-    glow: "rgba(244,114,182,0.18)",
-    skills: [
-      { name: "RAG Pipelines", icon: "https://cdn.simpleicons.org/googlegemini/8e75b2" },
-      { name: "pgvector",      icon: "https://cdn.simpleicons.org/postgresql/336791" },
-      { name: "Gemini API",    icon: "https://cdn.simpleicons.org/googlegemini/8e75b2" },
-      { name: "Groq / Llama",  icon: "https://cdn.simpleicons.org/ollama/ffffff" },
-      { name: "Embeddings",    icon: "https://cdn.simpleicons.org/huggingface/ffd21e" },
-      { name: "Vector Search", icon: "https://cdn.simpleicons.org/elastic/005571" },
-      { name: "LangChain",     icon: "https://cdn.simpleicons.org/langchain/ffffff" },
-    ],
-  },
-  {
-    id: "devops",
-    label: "DevOps & Cloud",
-    color: "#fb923c",
-    glow: "rgba(251,146,60,0.18)",
-    skills: [
-      { name: "Docker",         icon: "https://cdn.simpleicons.org/docker/2496ed" },
-      { name: "GitHub Actions", icon: "https://cdn.simpleicons.org/githubactions/2088ff" },
-      { name: "Supabase",       icon: "https://cdn.simpleicons.org/supabase/3ecf8e" },
-      { name: "Vercel",         icon: "https://cdn.simpleicons.org/vercel/ffffff" },
-      { name: "Render",         icon: "https://cdn.simpleicons.org/render/46e3b7" },
-      { name: "Git",            icon: "https://cdn.simpleicons.org/git/f05032" },
-      { name: "GitHub",         icon: "https://cdn.simpleicons.org/github/ffffff" },
-    ],
-  },
-];
+interface SkillItem {
+  name: string;
+  icon?: string;
+}
 
-const ALL_SKILLS = CATEGORIES.flatMap((c) => c.skills);
+interface Category {
+  id: string;
+  category: string;
+  color: string;
+  display_order: number;
+  items: SkillItem[];
+}
+
+function hexToRgba(hex: string, alpha: number): string {
+  try {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  } catch {
+    return `rgba(129,140,248,${alpha})`;
+  }
+}
+
+const ICON_COLORS: Record<string, string> = {
+  nextdotjs: "ffffff", typescript: "3178c6", react: "61dafb",
+  tailwindcss: "38bdf8", shadcnui: "ffffff", framer: "ffffff",
+  reactquery: "ff4154", fastapi: "009688", python: "3776ab",
+  pydantic: "e92063", postgresql: "336791", nodedotjs: "339933",
+  express: "ffffff", googlegemini: "8e75b2", ollama: "ffffff",
+  huggingface: "ffd21e", elastic: "005571", langchain: "ffffff",
+  docker: "2496ed", githubactions: "2088ff", supabase: "3ecf8e",
+  vercel: "ffffff", render: "46e3b7", git: "f05032", github: "ffffff",
+  java: "f89820", javascript: "f7df1e", cplusplus: "00599c",
+  php: "777bb4",
+};
+
+function iconUrl(slug: string | undefined): string | null {
+  if (!slug || slug.trim() === "") return null;
+  const s = slug.toLowerCase().trim();
+  const color = ICON_COLORS[s] ?? "ffffff";
+  return `https://cdn.simpleicons.org/${encodeURIComponent(s)}/${color}`;
+}
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function Skills() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [highlightedSkills, setHighlightedSkills] = useState<string[]>([]);
 
-   const [highlightedSkills, setHighlightedSkills] = useState<string[]>([]);
+  useEffect(() => {
+    supabase
+      .from("skills")
+      .select("*")
+      .order("display_order")
+      .then(({ data }) => {
+        if (data) setCategories(data as Category[]);
+      });
+  }, []);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -83,6 +73,10 @@ export default function Skills() {
     window.addEventListener("skill-highlight", handler);
     return () => window.removeEventListener("skill-highlight", handler);
   }, []);
+
+  const allSkills = categories.flatMap((c) =>
+    (c.items ?? []).map((s) => ({ name: s.name, icon: iconUrl(s.icon) }))
+  );
 
   return (
     <section
@@ -154,64 +148,67 @@ export default function Skills() {
 
         {/* Category groups */}
         <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
-          {CATEGORIES.map((cat) => (
-            <div key={cat.id}>
-              {/* Category header */}
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-                <span
-                  aria-hidden="true"
-                  style={{
-                    width: 7,
-                    height: 7,
-                    borderRadius: "50%",
-                    background: cat.color,
-                    flexShrink: 0,
-                    boxShadow: `0 0 6px ${cat.color}88`,
-                  }}
-                />
-                <span style={{
-                  fontFamily: "monospace",
-                  fontSize: 10,
-                  letterSpacing: "0.18em",
-                  textTransform: "uppercase" as const,
-                  color: "#64748b",
-                }}>
-                  {cat.label}
-                </span>
-                <div
-                  aria-hidden="true"
-                  style={{
-                    flex: 1,
-                    height: 1,
-                    background: `linear-gradient(to right, ${cat.color}44, transparent)`,
-                  }}
-                />
-              </div>
-
-              {/* Pills */}
-              <div
-                role="list"
-                aria-label={`${cat.label} skills`}
-                style={{ display: "flex", flexWrap: "wrap" as const, gap: 10 }}
-              >
-                {cat.skills.map((skill) => (
-                  <SkillPill
-                    key={skill.name}
-                    name={skill.name}
-                    icon={skill.icon}
-                    color={cat.color}
-                    glow={cat.glow}
-                    highlighted={highlightedSkills.includes(skill.name)}
-                    dimmed={highlightedSkills.length > 0 && !highlightedSkills.includes(skill.name)}
+          {categories.map((cat) => {
+            const glow = hexToRgba(cat.color, 0.18);
+            return (
+              <div key={cat.id}>
+                {/* Category header */}
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      width: 7,
+                      height: 7,
+                      borderRadius: "50%",
+                      background: cat.color,
+                      flexShrink: 0,
+                      boxShadow: `0 0 6px ${cat.color}88`,
+                    }}
                   />
-            ))}
+                  <span style={{
+                    fontFamily: "monospace",
+                    fontSize: 10,
+                    letterSpacing: "0.18em",
+                    textTransform: "uppercase" as const,
+                    color: "#64748b",
+                  }}>
+                    {cat.category}
+                  </span>
+                  <div
+                    aria-hidden="true"
+                    style={{
+                      flex: 1,
+                      height: 1,
+                      background: `linear-gradient(to right, ${cat.color}44, transparent)`,
+                    }}
+                  />
+                </div>
+
+                {/* Pills */}
+                <div
+                  role="list"
+                  aria-label={`${cat.category} skills`}
+                  style={{ display: "flex", flexWrap: "wrap" as const, gap: 10 }}
+                >
+                  {(cat.items ?? []).map((skill) => (
+                    <SkillPill
+                      key={skill.name}
+                      name={skill.name}
+                      icon={iconUrl(skill.icon)}
+                      color={cat.color}
+                      glow={glow}
+                      highlighted={highlightedSkills.includes(skill.name)}
+                      dimmed={highlightedSkills.length > 0 && !highlightedSkills.includes(skill.name)}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Scrolling ticker */}
-        <Ticker />
+        <Ticker skills={allSkills} />
       </div>
     </section>
   );
@@ -226,7 +223,7 @@ function SkillPill({
   dimmed = false,
 }: {
   name: string; 
-  icon: string; 
+  icon: string | null; 
   color: string; 
   glow: string;
   highlighted?: boolean; dimmed?: boolean;
@@ -275,15 +272,17 @@ function SkillPill({
         outline: "none",
       }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={icon}
-        alt=""
-        width={16}
-        height={16}
-        loading="lazy"
-        style={{ flexShrink: 0, opacity: 0.82 }}
-      />
+      {icon && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={icon}
+          alt=""
+          width={16}
+          height={16}
+          loading="lazy"
+          style={{ flexShrink: 0, opacity: 0.82 }}
+        />
+      )}
       <span style={{
         fontFamily: "monospace",
         fontSize: 12,
@@ -298,8 +297,8 @@ function SkillPill({
 
 // ─── Ticker ───────────────────────────────────────────────────────────────────
 
-function Ticker() {
-  const items = [...ALL_SKILLS, ...ALL_SKILLS];
+function Ticker({ skills }: { skills: { name: string; icon: string | null }[] }) {
+  const items = [...skills, ...skills];
 
   return (
     <div
@@ -334,8 +333,10 @@ function Ticker() {
               whiteSpace: "nowrap",
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={skill.icon} alt="" width={12} height={12} style={{ opacity: 0.3 }} loading="lazy" />
+            {skill.icon && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={skill.icon} alt="" width={12} height={12} style={{ opacity: 0.3 }} loading="lazy" />
+            )}
             {skill.name}
             <span style={{ marginLeft: 12, color: "#1e293b" }}>·</span>
           </div>
