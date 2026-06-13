@@ -184,14 +184,7 @@ export default function HeroSection() {
       className="hero-pad"
      style={{ position: "relative", overflow: "visible", minHeight: "100vh", display: "flex", alignItems: "center" }}
     >
-    {/* Desktop portrait — absolute left panel */}
-      {profile.avatar_url && (
-        <div className="hero-portrait-desktop">
-          <img src={profile.avatar_url} alt={profile.name ?? "Milan Ray"} />
-        </div>
-      )}
-
-      <div style={{ maxWidth: 1152, margin: "0 auto", width: "100%", position: "relative", zIndex: 1, paddingLeft: "clamp(0px, 18vw, 240px)" }}>
+      <div style={{ maxWidth: 1152, margin: "0 auto", width: "100%", position: "relative", zIndex: 1 }}>
         <div className="hero-grid">
           {/* LEFT — identity */}
           <div>
@@ -201,12 +194,10 @@ export default function HeroSection() {
                 <span style={{ fontSize: 11, fontWeight: 600, color: "#00ffaa", letterSpacing: "0.2em", textTransform: "uppercase" }}>Open to Work</span>
               </div>
             )}
-            <div className="animate-fade-up delay-100" style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
-              {profile.avatar_url && (
-                <div className="hero-portrait-mobile">
-                  <img src={profile.avatar_url} alt={profile.name ?? "Milan Ray"} />
-                </div>
-              )}
+            <div className="animate-fade-up delay-100" style={{ display: "flex", alignItems: "flex-end", gap: 20, marginBottom: 20 }}>
+              <div style={{ width: 80, height: 80, borderRadius: 20, flexShrink: 0, background: profile.avatar_url ? `url(${profile.avatar_url}) center/cover no-repeat` : "linear-gradient(135deg, rgba(124,111,205,0.3), rgba(0,212,255,0.2))", border: "2px solid rgba(157,143,240,0.3)", boxShadow: "0 0 24px rgba(124,111,205,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Syne, sans-serif", fontWeight: 900, fontSize: 28, color: "rgba(157,143,240,0.8)" }}>
+                {!profile.avatar_url && (profile.name?.[0] ?? "M")}
+              </div>
               <h1 className="font-display" style={{ lineHeight: 0.92 }}>
                 <span style={{ display: "block", fontSize: "clamp(44px, 7vw, 88px)", fontWeight: 900, color: "white" }}>{profile.name?.split(" ")[0] ?? "Milan"}</span>
                 <span style={{ display: "block", fontSize: "clamp(44px, 7vw, 88px)", fontWeight: 900, background: "linear-gradient(135deg, #9d8ff0, #00d4ff)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{profile.name?.split(" ")[1] ?? "Ray"}</span>
