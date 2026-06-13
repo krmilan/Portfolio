@@ -90,7 +90,7 @@ export default function Skills() {
       data-snap
       aria-label="Skills and Tech Stack"
       className="section-pad"
-      style={{ position: "relative" }}
+      style={{ position: "relative", overflow: "hidden" }}
     >
       {/* Orb glow — matches bg-orbs aesthetic */}
       <div

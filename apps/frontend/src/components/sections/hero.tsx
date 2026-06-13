@@ -191,7 +191,7 @@ export default function HeroSection() {
         </div>
       )}
 
-      <div style={{ maxWidth: 1152, margin: "0 auto", width: "100%", position: "relative", zIndex: 1 }}>
+      <div style={{ maxWidth: 1152, margin: "0 auto", width: "100%", position: "relative", zIndex: 1, paddingLeft: "clamp(0px, 18vw, 240px)" }}>
         <div className="hero-grid">
           {/* LEFT — identity */}
           <div>

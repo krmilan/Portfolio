@@ -100,7 +100,7 @@ export default function Footer() {
         }
       `}</style>
 
-      <div style={{ flex: 1, display: "flex", alignItems: "center", padding: "clamp(32px, 5vh, 64px) clamp(20px, 5vw, 48px) clamp(32px, 5vh, 64px)", position: "relative", marginTop: 64 }}>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", padding: "clamp(32px, 5vh, 64px) clamp(20px, 5vw, 48px)", position: "relative", marginTop: 64 }}>
         <div aria-hidden style={{
           position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
           width: 600, height: 300,

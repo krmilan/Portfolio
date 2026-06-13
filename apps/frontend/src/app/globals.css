@@ -148,7 +148,7 @@ section[data-snap]:not(#about) {
 /* ─── Hero portrait ─────────────────────────────────────────────────────── */
 .hero-portrait-desktop {
   position: absolute;
-  left: 80px;
+  left: clamp(20px, 4vw, 80px);
   top: 48%;
   transform: translateY(-50%);
   width: 220px;
