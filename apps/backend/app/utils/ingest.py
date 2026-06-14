@@ -211,7 +211,7 @@ async def ingest_from_supabase() -> int:
             "embedding": embedding,
             "metadata": doc["metadata"],
         }).execute()
-
+    print(f"✅ RAG sync complete — {len(docs)} documents ingested.")
     return len(docs)
 
 
