@@ -277,6 +277,7 @@ export default function AdminPage() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/ingest`, {
         method: "POST",
         headers: { "x-ingest-secret": process.env.NEXT_PUBLIC_INGEST_SECRET ?? "" },
+        signal: AbortSignal.timeout(300000), 
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail);
