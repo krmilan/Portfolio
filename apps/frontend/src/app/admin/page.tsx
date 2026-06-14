@@ -272,16 +272,15 @@ export default function AdminPage() {
 
   async function syncRag() {
     setSyncing(true);
-    flash("Syncing RAG...");
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/ingest`, {
         method: "POST",
         headers: { "x-ingest-secret": process.env.NEXT_PUBLIC_INGEST_SECRET ?? "" },
-        signal: AbortSignal.timeout(300000), 
+        signal: AbortSignal.timeout(10000),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail);
-      flash(`RAG synced ✓ — ${data.documents_ingested} documents`);
+      flash(`RAG sync started ✓ — runs in background (~2 min)`);
     } catch (e: any) {
       flash(`Sync failed: ${e.message}`);
     } finally {

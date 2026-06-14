@@ -3,6 +3,7 @@ Usage: PYTHONPATH=. .venv/bin/python -m app.utils.ingest
 """
 
 import time
+import asyncio
 from google import genai
 from app.core.config import get_settings
 from app.core.database import get_supabase
@@ -47,7 +48,7 @@ DOCUMENTS = [
         "metadata": {"source": "projects", "category": "project", "project": "ledgr-ai"},
     },
     {
-        "content": "Milan Ray project: AI Portfolio Platform — this portfolio website itself, built in 2025-2026. Tech stack: Next.js 15, TypeScript, Tailwind CSS v4, FastAPI Python backend, Supabase PostgreSQL with pgvector, Gemini API for embeddings, Groq llama-3.1-8b-instant for chat responses, Docker, GitHub Actions CI/CD. Features: RAG-powered AI assistant with semantic search, 768-dimensional vector embeddings, animated mascot, terminal-style hero section, skill bars, project cards, admin panel with full CRUD, scroll-snapped sections. Deployed on Vercel (frontend) and Render (backend). Lighthouse scores: Performance 99, SEO 100. Infrastructure cost: $0.",
+        "content": "Milan Ray project: AI Portfolio Platform — this portfolio website itself, built in 2025-2026. Tech stack: Next.js 15, TypeScript, Tailwind CSS v4, FastAPI Python backend, Supabase PostgreSQL with pgvector, Gemini API for embeddings, Groq llama-3.1-8b-instant for chat responses, Docker, GitHub Actions CI/CD. Features: RAG-powered AI assistant with semantic search, 768-dimensional vector embeddings, terminal-style hero section, skill bars, project cards, admin panel with full CRUD, scroll-snapped sections. Deployed on Vercel (frontend) and Render (backend). Lighthouse scores: Performance 99, SEO 100. Infrastructure cost: $0.",
         "metadata": {"source": "projects", "category": "project"},
     },
     {
@@ -89,7 +90,16 @@ def embed(text: str) -> list[float]:
     return response.embeddings[0].values[:768]
 
 
+def embed_batch(texts: list[str]) -> list[list[float]]:
+    response = client.models.embed_content(
+        model="models/gemini-embedding-001",
+        contents=texts,
+    )
+    return [e.values[:768] for e in response.embeddings]
+
+
 def ingest():
+    """Local CLI ingest using static DOCUMENTS list."""
     db = get_supabase()
     db.table("documents").delete().neq("id", "00000000-0000-0000-0000-000000000000").execute()
     print("Cleared existing documents.")
@@ -108,10 +118,10 @@ def ingest():
             time.sleep(13)
 
     print("\n✅ All documents ingested successfully.")
-    
+
 
 async def ingest_from_supabase() -> int:
-    import asyncio
+    """Auto-ingest from live Supabase tables. Called by admin Sync RAG button."""
     db = get_supabase()
 
     # Fetch live data
@@ -170,33 +180,40 @@ async def ingest_from_supabase() -> int:
             "metadata": {"source": "about", "category": "achievements"},
         })
 
-    # Keep static docs that have no Supabase table (RAG architecture, infra, hiring, ledgr details)
-    static_sources = {"architecture", "about"}
-    static_categories = {"rag", "infrastructure", "hiring", "contact", "education"}
+    # Static docs with no Supabase table (RAG arch, infra, hiring, contact, education)
     static_docs = [
         d for d in DOCUMENTS
-        if d["metadata"].get("source") in static_sources
-        and d["metadata"].get("category") in static_categories
+        if d["metadata"].get("source") in {"architecture", "about"}
+        and d["metadata"].get("category") in {"rag", "infrastructure", "hiring", "contact", "education"}
     ]
-    # Also keep detailed Ledgr.ai engineering chunks (not in any table)
+    # Detailed Ledgr.ai engineering chunks
     ledgr_docs = [d for d in DOCUMENTS if d["metadata"].get("project") == "ledgr-ai"]
     docs.extend(static_docs)
     docs.extend(ledgr_docs)
 
-    # Ingest
+    # Clear existing
     db.table("documents").delete().neq("id", "00000000-0000-0000-0000-000000000000").execute()
 
-    for i, doc in enumerate(docs):
-        embedding = embed(doc["content"])
+    # Batch embed (5 per batch = safe within Gemini 5 RPM)
+    batch_size = 5
+    all_embeddings = []
+    for i in range(0, len(docs), batch_size):
+        batch = docs[i:i + batch_size]
+        embeddings = embed_batch([d["content"] for d in batch])
+        all_embeddings.extend(embeddings)
+        if i + batch_size < len(docs):
+            await asyncio.sleep(13)
+
+    # Insert all
+    for doc, embedding in zip(docs, all_embeddings):
         db.table("documents").insert({
             "content": doc["content"],
             "embedding": embedding,
             "metadata": doc["metadata"],
         }).execute()
-        if i < len(docs) - 1:
-            await asyncio.sleep(13)  # Gemini 5 RPM rate limit
 
     return len(docs)
+
 
 if __name__ == "__main__":
     ingest()
