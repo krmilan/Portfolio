@@ -46,6 +46,7 @@ export default function AdminPage() {
   const [tab, setTab] = useState<"profile" | "projects" | "skills" | "experience" | "contact">("profile");
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
+  const [syncing, setSyncing] = useState(false);
 
   // Data state
   const [profile, setProfile] = useState<Partial<Profile>>({});
@@ -267,6 +268,26 @@ export default function AdminPage() {
     flash("Contact added ✓");
   }
 
+  // ─── RAG Sync ──────────────────────────────────────────────────────────────
+
+  async function syncRag() {
+    setSyncing(true);
+    flash("Syncing RAG...");
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/ingest`, {
+        method: "POST",
+        headers: { "x-ingest-secret": process.env.NEXT_PUBLIC_INGEST_SECRET ?? "" },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail);
+      flash(`RAG synced ✓ — ${data.documents_ingested} documents`);
+    } catch (e: any) {
+      flash(`Sync failed: ${e.message}`);
+    } finally {
+      setSyncing(false);
+    }
+  }
+
   // ─── Styles ────────────────────────────────────────────────────────────────
 
   const inputStyle: React.CSSProperties = {
@@ -354,20 +375,27 @@ export default function AdminPage() {
       <div style={{ maxWidth: 960, margin: "0 auto", padding: "32px 24px" }}>
 
         {/* Tabs */}
-        <div style={{
-          display: "flex", gap: 4, marginBottom: 32, flexWrap: "wrap",
-          background: "rgba(255,255,255,0.03)", padding: 4,
-          borderRadius: 12, width: "fit-content",
-          border: "1px solid rgba(255,255,255,0.07)",
-        }}>
-          {TABS.map(t => (
-            <button key={t} onClick={() => setTab(t)} style={{
-              padding: "8px 20px", borderRadius: 9, border: "none", cursor: "pointer",
-              background: tab === t ? "linear-gradient(135deg, #7c6fcd, #9d8ff0)" : "transparent",
-              color: tab === t ? "white" : "#64748b",
-              fontWeight: 600, fontSize: 13, fontFamily: "DM Sans, sans-serif", textTransform: "capitalize",
-            }}>{t}</button>
-          ))}
+        <div style={{ display: "flex", gap: 8, marginBottom: 32, flexWrap: "wrap", alignItems: "center" }}>
+          <div style={{
+            display: "flex", gap: 4,
+            background: "rgba(255,255,255,0.03)", padding: 4,
+            borderRadius: 12, border: "1px solid rgba(255,255,255,0.07)",
+          }}>
+            {TABS.map(t => (
+              <button key={t} onClick={() => setTab(t)} style={{
+                padding: "8px 20px", borderRadius: 9, border: "none", cursor: "pointer",
+                background: tab === t ? "linear-gradient(135deg, #7c6fcd, #9d8ff0)" : "transparent",
+                color: tab === t ? "white" : "#64748b",
+                fontWeight: 600, fontSize: 13, fontFamily: "DM Sans, sans-serif", textTransform: "capitalize",
+              }}>{t}</button>
+            ))}
+          </div>
+          <button onClick={syncRag} disabled={syncing} style={{
+            padding: "8px 20px", borderRadius: 9, border: "1px solid rgba(0,255,180,0.3)",
+            background: syncing ? "rgba(0,255,180,0.05)" : "rgba(0,255,180,0.1)",
+            color: syncing ? "#475569" : "#00ffb4",
+            fontWeight: 600, fontSize: 13, fontFamily: "DM Sans, sans-serif", cursor: syncing ? "not-allowed" : "pointer",
+          }}>{syncing ? "Syncing..." : "⚡ Sync RAG"}</button>
         </div>
 
         {/* ── PROFILE TAB ──────────────────────────────────────────────────── */}

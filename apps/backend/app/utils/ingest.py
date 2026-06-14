@@ -108,7 +108,95 @@ def ingest():
             time.sleep(13)
 
     print("\n✅ All documents ingested successfully.")
+    
 
+async def ingest_from_supabase() -> int:
+    import asyncio
+    db = get_supabase()
+
+    # Fetch live data
+    profile = db.table("profile").select("*").eq("id", 1).single().execute().data or {}
+    projects = db.table("projects").select("*").eq("visible", True).order("display_order").execute().data or []
+    skills = db.table("skills").select("*").order("display_order").execute().data or []
+    experiences = db.table("experience").select("*").order("display_order").execute().data or []
+    certs = db.table("certifications").select("*").order("display_order").execute().data or []
+
+    docs = []
+
+    # Profile chunk
+    if profile:
+        roles = ", ".join(profile.get("roles") or [])
+        docs.append({
+            "content": f"Milan Ray is a full-stack AI engineer based in Bengaluru, India. Roles: {roles}. Bio: {profile.get('bio', '')}. Open to work: {profile.get('open_to_work', True)}. GitHub: {profile.get('github_url', '')}. LinkedIn: {profile.get('linkedin_url', '')}. Email: {profile.get('email', '')}.",
+            "metadata": {"source": "profile", "category": "profile"},
+        })
+
+    # Skills chunk
+    if skills:
+        skill_text = " | ".join([
+            f"{s['category']}: {', '.join([i['name'] if isinstance(i, dict) else i for i in (s.get('items') or [])])}"
+            for s in skills
+        ])
+        docs.append({
+            "content": f"Milan Ray technical skills: {skill_text}",
+            "metadata": {"source": "skills", "category": "technical"},
+        })
+
+    # Project chunks
+    for p in projects:
+        tags = ", ".join(p.get("tags") or [])
+        links = []
+        if p.get("github_url"): links.append(f"GitHub: {p['github_url']}")
+        if p.get("live_url"): links.append(f"Live: {p['live_url']}")
+        docs.append({
+            "content": f"Milan Ray project: {p['title']}. {p.get('description', '')} Tech stack: {tags}. {' '.join(links)}",
+            "metadata": {"source": "projects", "category": "project", "project": p["title"]},
+        })
+
+    # Experience chunks
+    for e in experiences:
+        points = " ".join(e.get("points") or [])
+        tags = ", ".join(e.get("tags") or [])
+        docs.append({
+            "content": f"Milan Ray {e.get('type', 'work')} experience: {e.get('role', '')} at {e.get('org', '')}, {e.get('location', '')}, {e.get('period', '')}. {points} Technologies: {tags}.",
+            "metadata": {"source": "experience", "category": "experience"},
+        })
+
+    # Certs chunk
+    if certs:
+        cert_text = " | ".join([f"{c['name']} from {c['issuer']} ({c.get('date', '')})" for c in certs])
+        docs.append({
+            "content": f"Milan Ray certifications and achievements: {cert_text}",
+            "metadata": {"source": "about", "category": "achievements"},
+        })
+
+    # Keep static docs that have no Supabase table (RAG architecture, infra, hiring, ledgr details)
+    static_sources = {"architecture", "about"}
+    static_categories = {"rag", "infrastructure", "hiring", "contact", "education"}
+    static_docs = [
+        d for d in DOCUMENTS
+        if d["metadata"].get("source") in static_sources
+        and d["metadata"].get("category") in static_categories
+    ]
+    # Also keep detailed Ledgr.ai engineering chunks (not in any table)
+    ledgr_docs = [d for d in DOCUMENTS if d["metadata"].get("project") == "ledgr-ai"]
+    docs.extend(static_docs)
+    docs.extend(ledgr_docs)
+
+    # Ingest
+    db.table("documents").delete().neq("id", "00000000-0000-0000-0000-000000000000").execute()
+
+    for i, doc in enumerate(docs):
+        embedding = embed(doc["content"])
+        db.table("documents").insert({
+            "content": doc["content"],
+            "embedding": embedding,
+            "metadata": doc["metadata"],
+        }).execute()
+        if i < len(docs) - 1:
+            await asyncio.sleep(13)  # Gemini 5 RPM rate limit
+
+    return len(docs)
 
 if __name__ == "__main__":
     ingest()

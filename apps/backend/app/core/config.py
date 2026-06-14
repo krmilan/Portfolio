@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import field_validator
+from pydantic import Field, field_validator
 from functools import lru_cache
 import json
 
@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     chat_model: str = "models/gemini-2.0-flash"
     vector_match_threshold: float = 0.35
     vector_match_count: int = 5
+    
+    ingest_secret: str = Field(default="change-me-secret")
 
     @field_validator("allowed_origins", mode="before")
     @classmethod
