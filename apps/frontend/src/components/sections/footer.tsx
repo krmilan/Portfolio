@@ -15,7 +15,7 @@ interface ContactItem {
 const FALLBACK_CONTACT: ContactItem[] = [
   { id: "1", label: "Email",    value: "milanray.dev@gmail.com", href: "mailto:milanray.dev@gmail.com",  accent: "#9d8ff0", display_order: 1 },
   { id: "2", label: "GitHub",   value: "github.com/krmilan",      href: "https://github.com/krmilan",    accent: "#00d4ff", display_order: 2 },
-  { id: "3", label: "LinkedIn", value: "linkedin.com/in/krmilan", href: "https://linkedin.com/in/milanray", accent: "#00ffaa", display_order: 3 },
+  { id: "3", label: "LinkedIn", value: "linkedin.com/in/milanray", href: "https://linkedin.com/in/milanray", accent: "#00ffaa", display_order: 3 },
 ];
 
 const NAV_LINKS = [

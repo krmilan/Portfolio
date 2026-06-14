@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import HeroTypewriter from "@/components/ui/hero-typewriter";
 import { type Profile, type ExtraLink, getProfile } from "@/lib/content";
 import { sendChat } from "@/lib/api";
+import Image from "next/image";
 
 const FALLBACK: Profile = {
   id: 1,
@@ -195,8 +196,11 @@ export default function HeroSection() {
               </div>
             )}
             <div className="animate-fade-up delay-100" style={{ display: "flex", alignItems: "flex-end", gap: 20, marginBottom: 20 }}>
-              <div style={{ width: 80, height: 80, borderRadius: 20, flexShrink: 0, background: profile.avatar_url ? `url(${profile.avatar_url}) center/cover no-repeat` : "linear-gradient(135deg, rgba(124,111,205,0.3), rgba(0,212,255,0.2))", border: "2px solid rgba(157,143,240,0.3)", boxShadow: "0 0 24px rgba(124,111,205,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Syne, sans-serif", fontWeight: 900, fontSize: 28, color: "rgba(157,143,240,0.8)" }}>
-                {!profile.avatar_url && (profile.name?.[0] ?? "M")}
+              <div style={{ width: 80, height: 80, borderRadius: 20, flexShrink: 0, border: "2px solid rgba(157,143,240,0.3)", boxShadow: "0 0 24px rgba(124,111,205,0.2)", overflow: "hidden", background: "linear-gradient(135deg, rgba(124,111,205,0.3), rgba(0,212,255,0.2))", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Syne, sans-serif", fontWeight: 900, fontSize: 28, color: "rgba(157,143,240,0.8)" }}>
+                {profile.avatar_url
+                  ? <Image src={profile.avatar_url} alt={profile.name ?? "Milan Ray"} width={80} height={80} style={{ objectFit: "cover", width: "100%", height: "100%" }} priority />
+                  : (profile.name?.[0] ?? "M")
+                }
               </div>
               <h1 className="font-display" style={{ lineHeight: 0.92 }}>
                 <span style={{ display: "block", fontSize: "clamp(44px, 7vw, 88px)", fontWeight: 900, color: "white" }}>{profile.name?.split(" ")[0] ?? "Milan"}</span>
