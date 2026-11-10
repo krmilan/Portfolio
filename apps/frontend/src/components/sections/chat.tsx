@@ -294,7 +294,7 @@ export default function ChatSection({ onMascotStateChange }: { onMascotStateChan
         </div>
 
         <p style={{ textAlign: "center", fontSize: 11, color: "#475569", marginTop: 14, fontFamily: "monospace" }}>
-          pgvector · semantic search · groq llama-3.1 · gemini embeddings
+          pgvector · semantic search · openai/gpt-oss-20b · gemini embeddings
         </p>
       </div>
     </section>

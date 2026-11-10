@@ -68,7 +68,7 @@ DOCUMENTS = [
         "metadata": {"source": "about", "category": "achievements"},
     },
     {
-        "content": "Milan Ray RAG and AI system in portfolio: User question is embedded using Gemini gemini-embedding-001 producing a 768-dimensional vector. pgvector performs cosine similarity search via match_documents Supabase RPC to retrieve relevant document chunks. Retrieved chunks are injected as context into Groq llama-3.1-8b-instant. The model answers only based on retrieved context to prevent hallucination. This is Milan's first production RAG implementation.",
+        "content": "Milan Ray RAG and AI system in portfolio: User question is embedded using Gemini gemini-embedding-001 producing a 768-dimensional vector. pgvector performs cosine similarity search via match_documents Supabase RPC to retrieve relevant document chunks. Retrieved chunks are injected as context into Groq openai/gpt-oss-20b. The model answers only based on retrieved context to prevent hallucination. This is Milan's first production RAG implementation.",
         "metadata": {"source": "architecture", "category": "rag"},
     },
     {
