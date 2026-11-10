@@ -76,7 +76,7 @@ Do not answer from general knowledge."""
         messages = self._build_messages(message, chunks, history)
 
         response = self.groq.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="openai/gpt-oss-20b",  # was "llama-3.1-8b-instant" (shut down by Groq)
             messages=messages,
             max_tokens=512,
             temperature=0.3,
